@@ -39,16 +39,14 @@ export function DiceRollControls() {
 
   const counts = useDiceControlsStore((state) => state.diceCounts);
   const bonus = useDiceControlsStore((state) => state.diceBonus);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
-  // Is currently the default dice state (all counts 0 and advantage/bonus defaults)
+  // Is currently the default dice state (all counts 0 and bonus defaults)
   const isDefault = useMemo(
     () =>
       Object.entries(defaultDiceCounts).every(
         ([type, count]) => counts[type as DiceType] === count
       ) &&
-      advantage === null &&
       bonus === 0,
-    [counts, defaultDiceCounts, advantage, bonus]
+    [counts, defaultDiceCounts, bonus]
   );
 
   const rollValues = useDiceRollStore((state) => state.rollValues);
@@ -93,8 +91,6 @@ function DicePickedControls() {
   const hidden = useDiceControlsStore((state) => state.diceHidden);
   const bonus = useDiceControlsStore((state) => state.diceBonus);
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
-  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
 
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
@@ -104,7 +100,7 @@ function DicePickedControls() {
 
   function handleRoll() {
     if (hasDice && rollPressTime) {
-      const dice = getDiceToRoll(counts, advantage, diceById);
+      const dice = getDiceToRoll(counts, diceById);
       const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
       const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
       startRoll({ dice, bonus, hidden }, speedMultiplier);
@@ -115,7 +111,7 @@ function DicePickedControls() {
           rolledDiceById[id] = diceById[id];
         }
       }
-      pushRecentRoll({ advantage, counts, bonus, diceById: rolledDiceById });
+      pushRecentRoll({ counts, bonus, diceById: rolledDiceById });
 
       handleReset();
     }
@@ -125,7 +121,6 @@ function DicePickedControls() {
   function handleReset() {
     resetDiceCounts();
     setBonus(0);
-    setAdvantage(null);
   }
 
   const rollPressTime = useDiceControlsStore(
@@ -263,24 +258,6 @@ function DicePickedControls() {
             <CloseIcon />
           </IconButton>
         </Tooltip>
-      </Stack>
-      <Stack
-        sx={{
-          position: "absolute",
-          top: 12,
-          left: 24,
-        }}
-      >
-        {advantage && (
-          <Typography
-            textAlign="left"
-            lineHeight="40px"
-            color="white"
-            variant="h6"
-          >
-            {advantage === "ADVANTAGE" ? "Adv" : "Dis"}
-          </Typography>
-        )}
       </Stack>
       <Stack
         sx={{

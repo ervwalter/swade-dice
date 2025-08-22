@@ -1,12 +1,11 @@
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { Advantage, DiceCounts } from "./store";
+import { DiceCounts } from "./store";
 import { Die } from "../types/Die";
 
 export interface RecentRoll {
   counts: DiceCounts;
   bonus: number;
-  advantage: Advantage;
   diceById: Record<string, Die>;
 }
 

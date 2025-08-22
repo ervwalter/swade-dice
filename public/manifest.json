@@ -1,13 +1,13 @@
 {
-  "name": "Dice",
+  "name": "Savage Worlds Dice",
   "version": "2.0.0",
   "manifest_version": 1,
   "author": "Owlbear Rodeo",
-  "homepage_url": "https://extensions.owlbear.rodeo/dice",
+  "homepage_url": "https://extensions.owlbear.rodeo/savage-worlds-dice",
   "icon": "/logo.png",
-  "description": "Beautiful 3D dice extension for d20 based systems",
+  "description": "Beautiful 3D dice extension for Savage Worlds Adventure Edition (SWADE)",
   "action": {
-    "title": "Dice",
+    "title": "Savage Worlds Dice",
     "icon": "/icon.svg",
     "popover": "/",
     "height": 700,

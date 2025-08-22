@@ -24,41 +24,22 @@ import { Die } from "./Die";
  *  ],
  * }
  *
- * @example <caption>A D20 rolled at advantage with a bonus +6 to the roll</caption>
+ * @example <caption>A D12 rolled twice taking the highest with a bonus +6 to the roll</caption>
  * {
  *  dice: [
- *    {id: "123", set: "NEBULA", type: "D20"},
- *    {id: "234", set: "NEBULA", type: "D20"}
+ *    {id: "123", set: "NEBULA", type: "D12"},
+ *    {id: "234", set: "NEBULA", type: "D12"}
  *  ],
  *  combination: "HIGHEST",
  *  bonus: 6
  * }
  *
- * @example <caption>A single D100 rolled with an added D10</caption>
+ * @example <caption>A single D12 rolled with an added D10</caption>
  * {
  *  dice: [
- *    {id: "123", set: "NEBULA", type: "D100"},
+ *    {id: "123", set: "NEBULA", type: "D12"},
  *    {id: "234", set: "NEBULA", type: "D10"}
  *  ],
- * }
- *
- * @example <caption>A D100 and D10 rolled at advantage</caption>
- * {
- *  dice: [
- *    {
- *       dice: [
- *        {id: "123", set: "NEBULA", type: "D100"},
- *        {id: "234", set: "NEBULA", type: "D10"}
- *      ],
- *    },
- *    {
- *      dice: [
- *        {id: "345", set: "NEBULA", type: "D100"},
- *        {id: "456", set: "NEBULA", type: "D10"}
- *      ],
- *    },
- *  ],
- *  combination: "HIGHEST",
  * }
  *
  */

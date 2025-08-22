@@ -1,12 +1,12 @@
-# Owlbear Rodeo Dice
+# Savage Worlds Dice
 
-Beautiful 3D dice extension for d20 based systems
+Beautiful 3D dice extension for Savage Worlds Adventure Edition (SWADE)
 
 ![Example](/docs/header.jpg)
 
 ## Installing
 
-The extension can be installed from the [store page](https://extensions.owlbear.rodeo/dice).
+The extension can be installed from the [store page](https://extensions.owlbear.rodeo/savage-worlds-dice).
 
 ## How it Works
 

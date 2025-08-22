@@ -62,7 +62,6 @@ export function FairnessTester() {
     (state) => state.resetDiceCounts
   );
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
-  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
 
   const singleDiceSelected = useMemo(() => {
     const totalCount = Object.values(counts).reduce(
@@ -91,7 +90,7 @@ export function FairnessTester() {
       const rollingDie = diceById[rolling[0]];
       if (rollingDie) {
         setRolledDie(rollingDie);
-        const dice = getDiceToRoll(counts, null, diceById);
+        const dice = getDiceToRoll(counts, diceById);
         startRoll({ dice, bonus: 0, hidden: true });
         setActive(true);
         handleCountsReset();
@@ -114,7 +113,6 @@ export function FairnessTester() {
   function handleCountsReset() {
     resetDiceCounts();
     setBonus(0);
-    setAdvantage(null);
   }
 
   // Subscribe to roll finish events and add them to the rolledValues state
@@ -383,7 +381,6 @@ function Alerts({
   rolled: boolean;
 }) {
   const bonus = useDiceControlsStore((state) => state.diceBonus);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
 
   if (active || rolled) {
     return null;
@@ -393,11 +390,6 @@ function Alerts({
     <>
       {bonus > 0 && (
         <Alert severity="warning">Bonus not supported by fairness tester</Alert>
-      )}
-      {advantage && (
-        <Alert severity="warning">
-          Advantage not supported by fairness tester
-        </Alert>
       )}
       {!singleDiceSelected && (
         <Alert severity="warning">Select one dice to begin testing</Alert>

@@ -1,21 +1,17 @@
 import { useState } from "react";
 
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
 import Tooltip from "@mui/material/Tooltip";
 
 import { DieBonus } from "./DieBonus";
-import { DieAdvantage } from "./DieAdvantage";
 import { useDiceControlsStore } from "./store";
 import { useDiceRollStore } from "../dice/store";
 
 export function DiceExtras() {
   const bonus = useDiceControlsStore((state) => state.diceBonus);
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
-  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
 
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
   const roll = useDiceRollStore((state) => state.roll);
@@ -80,14 +76,6 @@ export function DiceExtras() {
             }}
             onDecrease={() => {
               setBonus(bonus - 1);
-              clearRollIfNeeded();
-            }}
-          />
-          <Divider variant="middle" />
-          <DieAdvantage
-            advantage={advantage}
-            onChange={(advantage) => {
-              setAdvantage(advantage);
               clearRollIfNeeded();
             }}
           />

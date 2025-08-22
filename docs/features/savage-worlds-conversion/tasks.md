@@ -2,7 +2,7 @@
 
 ## Phase 1: Extension Rebranding and Core Setup
 
-- [ ] 1. Rebrand extension to "Savage Worlds Dice"
+- [x] 1. Rebrand extension to "Savage Worlds Dice"
   - Update manifest.json with new name and unique plugin ID
   - Update all user-facing text references from generic dice to Savage Worlds
   - Update store metadata and descriptions
@@ -11,14 +11,14 @@
   - **Code Review**: Review all text changes for consistency, verify no D20 references remain
 
 - [ ] 2. Remove D20 and D100 dice support
-  - [ ] 2.1 Update type definitions to remove D20 and D100
+  - [x] 2.1 Update type definitions to remove D20 and D100
     - Remove D20 and D100 from DiceType definitions
     - Update all TypeScript interfaces that reference these types
     - **Definition of Done**: TypeScript compilation succeeds without D20/D100 types
     - **Tests Required**: Type checking passes, no runtime errors
     - **Code Review**: Verify all type references updated
 
-  - [ ] 2.2 Remove D20/D100 mesh and collider files
+  - [x] 2.2 Remove D20/D100 mesh and collider files
     - Delete D20 and D100 mesh components and .glb files
     - Delete D20 and D100 collider components
     - Remove imports and references in mesh/collider index files
@@ -26,7 +26,7 @@
     - **Tests Required**: Build succeeds, no 404 errors for missing assets
     - **Code Review**: Verify complete removal of files and references
 
-  - [ ] 2.3 Update dice sets and previews
+  - [x] 2.3 Update dice sets and previews
     - Remove D20/D100 from all dice set configurations
     - Remove D20/D100 preview images and references
     - Update fairness tester to exclude these dice
@@ -35,7 +35,7 @@
     - **Code Review**: Check all dice set configurations updated
 
 - [ ] 3. Remove advantage/disadvantage system
-  - [ ] 3.1 Remove advantage UI components
+  - [x] 3.1 Remove advantage UI components
     - Delete DieAdvantage.tsx component
     - Remove advantage controls from DiceRollControls
     - Remove advantage state from controls store
@@ -43,7 +43,7 @@
     - **Tests Required**: UI testing to verify removal, no console errors
     - **Code Review**: Verify complete removal of advantage logic
 
-  - [ ] 3.2 Remove advantage rolling logic
+  - [x] 3.2 Remove advantage rolling logic
     - Remove advantage/disadvantage from getDiceToRoll function
     - Remove HIGHEST/LOWEST combination logic
     - Clean up dice generation to remove advantage branching
