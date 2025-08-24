@@ -13,6 +13,8 @@ import { useDebugStore } from "../debug/store";
 export function DiceRoll({
   roll,
   rollThrows,
+  explosionDice = [],
+  finishedDice = [],
   onRollFinished,
   finishedTransforms,
   transformsRef,
@@ -20,6 +22,8 @@ export function DiceRoll({
 }: {
   roll: DiceRollType;
   rollThrows: Record<string, DiceThrow>;
+  explosionDice?: Die[];
+  finishedDice?: string[];
   onRollFinished?: (
     id: string,
     number: number,
@@ -37,6 +41,12 @@ export function DiceRoll({
   const allowPhysicsDebug = useDebugStore((state) => state.allowPhysicsDebug);
 
   const dice = useMemo(() => roll && getDieFromDice(roll), [roll]);
+  
+  // Combine regular dice and explosion dice
+  const allDice = useMemo(() => {
+    if (!dice) return [];
+    return [...dice, ...explosionDice];
+  }, [dice, explosionDice]);
 
   const emptyCallback = useCallback(() => {}, []);
 
@@ -61,8 +71,9 @@ export function DiceRoll({
     // Move to a static dice representation when all dice values have been found
     return (
       <group>
-        {dice?.map((die) => {
-          const dieTransform = finishedTransforms[die.id]!;
+        {allDice?.map((die) => {
+          const dieTransform = finishedTransforms[die.id];
+          if (!dieTransform) return null; // Skip if no transform yet
           const p = dieTransform.position;
           const r = dieTransform.rotation;
           return (
@@ -93,12 +104,15 @@ export function DiceRoll({
         paused={paused}
       >
         <TrayColliders />
-        {dice?.map((die) => {
+        {allDice?.map((die) => {
           const dieThrow = rollThrows[die.id];
+          if (!dieThrow) return null; // Skip if no throw data yet
           // Use a fixed transform if we have it
           // This allows re-rolling of individual dice as
           // we can lock the dice that are already in the tray
           const fixedTransform = transformsRef?.current?.[die.id] || undefined;
+          // Check if this die is finished and should be locked
+          const isFinished = finishedDice.includes(die.id);
           return (
             <PhysicsDice
               key={die.id}
@@ -106,6 +120,7 @@ export function DiceRoll({
               dieThrow={dieThrow}
               onRollFinished={onRollFinished}
               fixedTransform={fixedTransform}
+              isFinished={isFinished}
             >
               {/* Override onClick event to make sure simulated dice can't be selected */}
               <Dice

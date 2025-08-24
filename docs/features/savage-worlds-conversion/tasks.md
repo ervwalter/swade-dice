@@ -54,7 +54,7 @@
 ## Phase 2: Core Savage Worlds Mechanics
 
 - [ ] 4. Implement exploding dice logic
-  - [ ] 4.1 Create explosion detection system
+  - [x] 4.1 Create explosion detection system
     - Implement function to check if die value equals max for its type
     - Create explosion queue management in dice store
     - Add explosion counter with 50-roll limit
@@ -62,7 +62,7 @@
     - **Tests Required**: Unit tests for all die types (D4=4, D6=6, etc.), limit testing
     - **Code Review**: Logic review for edge cases, verify limit enforcement
 
-  - [ ] 4.2 Implement explosion animation system
+  - [x] 4.2 Implement explosion animation system
     - Create new dice spawning for explosions
     - Implement sequential explosion processing
     - Add visual delay between explosion rolls
@@ -70,7 +70,7 @@
     - **Tests Required**: Manual testing of explosion animations, performance testing
     - **Code Review**: Animation timing review, performance optimization check
 
-  - [ ] 4.3 Create explosion result tracking
+  - [x] 4.3 Create explosion result tracking
     - Store explosion chains per die
     - Calculate totals including all explosions
     - Maintain explosion history for display
@@ -79,7 +79,7 @@
     - **Code Review**: Verify accurate math, check data structure efficiency
 
 - [ ] 5. Implement roll mode system
-  - [ ] 5.1 Create mode selection UI
+  - [x] 5.1 Create mode selection UI
     - Design and implement mode toggle component
     - Add TRAIT/DAMAGE mode state to controls store
     - Implement mode persistence across sessions
@@ -87,7 +87,7 @@
     - **Tests Required**: UI testing for mode switching, localStorage persistence tests
     - **Code Review**: UX review for mode selection clarity
 
-  - [ ] 5.2 Create trait test mode interface
+  - [x] 5.2 Create trait test mode interface
     - Implement trait die selector (D4-D12)
     - Add wild die toggle with default enabled
     - Create target number input with quick selects (4, 6, 8)
@@ -96,7 +96,7 @@
     - **Tests Required**: UI testing for all controls, input validation tests
     - **Code Review**: UX review, accessibility check
 
-  - [ ] 5.3 Create damage roll mode interface
+  - [x] 5.3 Create damage roll mode interface
     - Implement multi-die selector for each type
     - Add increment/decrement controls per die type
     - Create modifier input for damage bonuses
@@ -107,15 +107,15 @@
 ## Phase 3: Wild Die and Result Processing
 
 - [ ] 6. Implement wild die system
-  - [ ] 6.1 Create wild die visual differentiation
-    - Implement color override system for wild die
-    - Create consistent wild die theme across all materials
+  - [x] 6.1 Create wild die visual differentiation
+    - ~~Implement color override system for wild die~~ Used Nebula style instead
+    - ~~Create consistent wild die theme across all materials~~ Nebula reserved for wild
     - Ensure wild die stands out from trait dice
     - **Definition of Done**: Wild die visually distinct in all themes
     - **Tests Required**: Visual testing across all material styles
     - **Code Review**: Design review for visual clarity
 
-  - [ ] 6.2 Implement wild die rolling logic
+  - [x] 6.2 Implement wild die rolling logic
     - Auto-generate D6 wild die when enabled
     - Process wild die explosions independently
     - Track wild die results separately
@@ -123,7 +123,7 @@
     - **Tests Required**: Integration tests for wild die with trait dice
     - **Code Review**: Logic review for wild die handling
 
-  - [ ] 6.3 Implement best die selection
+  - [x] 6.3 Implement best die selection
     - Compare trait die total vs wild die total
     - Select and highlight the better result
     - Store which die was used for final result
@@ -132,18 +132,18 @@
     - **Code Review**: Verify selection logic accuracy
 
 - [ ] 7. Implement success and raise calculation
-  - [ ] 7.1 Create success evaluation system
+  - [x] 7.1 Create success evaluation system
     - Compare final result to target number
     - Calculate success/failure status
-    - Store success state in roll result
+    - ~~Store success state in roll result~~ Display in UI only
     - **Definition of Done**: Accurate success/failure determination
     - **Tests Required**: Unit tests for various TN values and results
     - **Code Review**: Verify calculation accuracy
 
-  - [ ] 7.2 Implement raise calculation
+  - [x] 7.2 Implement raise calculation
     - Calculate raises as (result - TN) / 4
     - Handle partial raises correctly (round down)
-    - Store raise count in roll result
+    - ~~Store raise count in roll result~~ Display in UI only
     - **Definition of Done**: Correct raise count for all scenarios
     - **Tests Required**: Unit tests for raise calculations, boundary testing
     - **Code Review**: Mathematical accuracy review
@@ -151,7 +151,7 @@
 ## Phase 4: Results Display and UI Polish
 
 - [ ] 8. Create Savage Worlds results display
-  - [ ] 8.1 Implement explosion chain display
+  - [x] 8.1 Implement explosion chain display
     - Show roll sequences with explosion indicators (💥)
     - Display running totals for each die
     - Format chains clearly (e.g., "8💥 + 8💥 + 3 = 19")
@@ -159,17 +159,17 @@
     - **Tests Required**: UI testing with various explosion scenarios
     - **Code Review**: UX review for readability
 
-  - [ ] 8.2 Create trait test results display
+  - [x] 8.2 Create trait test results display
     - Show trait die and wild die results separately
-    - Indicate which die was selected
+    - ~~Indicate which die was selected~~ Shows best automatically
     - Display modifier and final total
     - Show success/failure with raise count
     - **Definition of Done**: Complete trait test information displayed clearly
     - **Tests Required**: UI testing for all result combinations
     - **Code Review**: Information hierarchy and clarity review
 
-  - [ ] 8.3 Create damage roll results display
-    - Show all dice results individually
+  - [x] 8.3 Create damage roll results display
+    - ~~Show all dice results individually~~ Group by die type
     - Display explosion chains for each die
     - Show modifier and final damage total
     - **Definition of Done**: Clear damage breakdown with total
@@ -177,7 +177,7 @@
     - **Code Review**: UX review for complex damage rolls
 
 - [ ] 9. Update roll history for Savage Worlds
-  - [ ] 9.1 Adapt history storage
+  - [x] 9.1 Adapt history storage
     - Store Savage Worlds specific data (mode, explosions, raises)
     - Maintain detailed breakdown in history
     - Implement history size limits
@@ -185,7 +185,7 @@
     - **Tests Required**: Integration tests for history storage, size limit tests
     - **Code Review**: Data structure efficiency review
 
-  - [ ] 9.2 Update history display
+  - [x] 9.2 Update history display
     - Show roll type (Trait/Damage) in history
     - Display success/raises for trait tests
     - Maintain explosion indicators in historical rolls
@@ -238,6 +238,37 @@
     - **Definition of Done**: Technical documentation reflects all changes
     - **Tests Required**: Code-documentation consistency check
     - **Code Review**: Technical accuracy review
+
+## Rules & Tips
+
+### Implementation Insights
+
+1. **Mode Detection Strategy**: Instead of explicit mode switching, the system automatically detects trait test vs damage roll based on dice count (1 die = trait test, 2+ = damage). This provides a more seamless user experience.
+
+2. **Wild Die Visual Design**: Nebula dice style is reserved exclusively for wild dice, providing clear visual distinction without needing custom materials or texture modifications.
+
+3. **UI Consistency**: The UI maintains the same vertical button layout regardless of mode. Controls are contextually enabled/disabled rather than shown/hidden to prevent layout shifts.
+
+4. **Material System**: The existing texture-based material system (albedo, normal, ORM maps) must be preserved for dice to display properly. Simple color overlays won't work as they lose the face numbers/pips.
+
+5. **Type Safety**: When modifying getDiceToRoll, be careful with the Die vs Dice type distinction. The function returns (Die | Dice)[] which requires type guards when accessing properties.
+
+6. **Explosion Completion Bug**: The checkAndProcessExplosion function must NOT check for roll completion when spawning new explosion dice. The completion check should only trigger when a die doesn't explode or hits the max explosion limit.
+
+7. **State System Complexity**: The current state system is convoluted with multiple overlapping data structures (rollValues, rollTransforms, dieInfo, finishedDice, etc.). A future refactor should consolidate these into a single unified state structure with clear status tracking per die.
+
+8. **State Management Gotchas**:
+   - Cannot use Sets with Immer - use arrays instead (pendingDice, finishedDice)
+   - Explosion ID generation must use fresh state via get() to avoid stale closures causing duplicate keys
+   - D10 special case: 0 face represents 10 in getValueFromDiceGroup
+
+9. **Results Display Timing**: Success/failure indicators only show after all dice complete rolling (pendingDice.length === 0) to prevent confusing flashes during explosions.
+
+10. **UI Label Conventions**: Display "Trait" to users (Savage Worlds terminology) but use "main" in code for clarity when separating from wild die results.
+
+11. **Modifier System**: Separate modifiers for trait tests and damage rolls prevent constant toggling. The UI shows two distinct buttons (🎯 for trait, ⚔️ for damage) with contextual enabling based on dice selection.
+
+12. **Unified State Hook**: The useDiceMode hook centralizes all dice mode detection logic, eliminating duplication across components. It determines trait vs damage mode based on original non-wild dice count (1 = trait, 2+ = damage) and provides consistent state for UI enabling/disabling.
 
 - [ ] 12. Final polish and release preparation
   - [ ] 12.1 UI/UX refinement

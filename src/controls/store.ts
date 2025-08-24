@@ -13,24 +13,87 @@ interface DiceControlsState {
   diceById: Record<string, Die>;
   defaultDiceCounts: DiceCounts;
   diceCounts: DiceCounts;
-  diceBonus: number;
   diceHidden: boolean;
   diceRollPressTime: number | null;
   fairnessTesterOpen: boolean;
+  // Savage Worlds specific state
+  wildDieEnabled: boolean;
+  targetNumber: number;
+  traitModifier: number;   // Modifier for trait tests
+  damageModifier: number;  // Modifier for damage rolls
+  // Results display state
+  resultsDetailsPinned: boolean;
+  resultsDetailsHovered: boolean;
+  // Actions
   changeDiceSet: (diceSet: DiceSet) => void;
   resetDiceCounts: () => void;
   changeDieCount: (id: string, count: number) => void;
   incrementDieCount: (id: string) => void;
   decrementDieCount: (id: string) => void;
-  setDiceBonus: (bonus: number) => void;
+  setTraitModifier: (modifier: number) => void;
+  setDamageModifier: (modifier: number) => void;
   toggleDiceHidden: () => void;
   setDiceRollPressTime: (time: number | null) => void;
   toggleFairnessTester: () => void;
+  // Savage Worlds specific actions
+  toggleWildDie: () => void;
+  setTargetNumber: (tn: number) => void;
+  // Results display actions
+  setResultsDetailsPinned: (pinned: boolean) => void;
+  setResultsDetailsHovered: (hovered: boolean) => void;
 }
 
-const initialSet = diceSets[0];
+// Load dice set from localStorage or use default
+const loadDiceSet = () => {
+  try {
+    const savedSetId = localStorage.getItem('swade-diceSetId');
+    if (savedSetId) {
+      const savedSet = diceSets.find(set => set.id === savedSetId);
+      // Return saved set if valid and not Nebula (reserved for wild die)
+      if (savedSet && savedSet.id !== "NEBULA_STANDARD" && savedSet.id !== "all") {
+        return savedSet;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load dice set:', e);
+  }
+  
+  // Default: first valid set (not Nebula or "all")
+  return diceSets.find(set => 
+    set.id !== "NEBULA_STANDARD" && set.id !== "all"
+  ) || diceSets[0];
+};
+
+const initialSet = loadDiceSet();
 const initialDiceCounts = getDiceCountsFromSet(initialSet);
 const initialDiceById = getDiceByIdFromSet(initialSet);
+
+// Load Savage Worlds settings from localStorage
+const loadSavageWorldsSettings = () => {
+  try {
+    const wildDieEnabled = localStorage.getItem('swade-wildDieEnabled');
+    const targetNumber = localStorage.getItem('swade-targetNumber');
+    return {
+      wildDieEnabled: wildDieEnabled !== null ? wildDieEnabled === 'true' : true,
+      targetNumber: targetNumber !== null ? parseInt(targetNumber, 10) : 4,
+    };
+  } catch {
+    return { wildDieEnabled: true, targetNumber: 4 };
+  }
+};
+
+const { wildDieEnabled: initialWildDie, targetNumber: initialTN } = loadSavageWorldsSettings();
+
+// Load results display preference from localStorage
+const loadResultsDetailsPinned = () => {
+  try {
+    const saved = localStorage.getItem("savage-worlds-results-pinned");
+    return saved === "true";
+  } catch (e) {
+    console.error('Failed to load results display preference:', e);
+    return false;
+  }
+};
 
 export const useDiceControlsStore = create<DiceControlsState>()(
   immer((set) => ({
@@ -38,10 +101,15 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
     diceCounts: initialDiceCounts,
-    diceBonus: 0,
     diceHidden: false,
     diceRollPressTime: null,
     fairnessTesterOpen: false,
+    wildDieEnabled: initialWildDie,
+    targetNumber: initialTN,
+    traitModifier: 0,   // Always start at 0 - modifiers are ephemeral
+    damageModifier: 0,  // Always start at 0 - modifiers are ephemeral
+    resultsDetailsPinned: loadResultsDetailsPinned(),
+    resultsDetailsHovered: false,
     changeDiceSet(diceSet) {
       set((state) => {
         const counts: DiceCounts = {};
@@ -62,6 +130,13 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.defaultDiceCounts = getDiceCountsFromSet(diceSet);
         state.diceById = getDiceByIdFromSet(diceSet);
       });
+      
+      // Save dice set selection to localStorage
+      try {
+        localStorage.setItem('swade-diceSetId', diceSet.id);
+      } catch (e) {
+        console.error('Failed to save dice set:', e);
+      }
     },
     resetDiceCounts() {
       set((state) => {
@@ -89,10 +164,17 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         }
       });
     },
-    setDiceBonus(bonus) {
+    setTraitModifier(modifier) {
       set((state) => {
-        state.diceBonus = bonus;
+        state.traitModifier = modifier;
       });
+      // Don't save to localStorage - modifiers are ephemeral in SWADE
+    },
+    setDamageModifier(modifier) {
+      set((state) => {
+        state.damageModifier = modifier;
+      });
+      // Don't save to localStorage - modifiers are ephemeral in SWADE
     },
     toggleDiceHidden() {
       set((state) => {
@@ -107,6 +189,38 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     toggleFairnessTester() {
       set((state) => {
         state.fairnessTesterOpen = !state.fairnessTesterOpen;
+      });
+    },
+    toggleWildDie() {
+      set((state) => {
+        state.wildDieEnabled = !state.wildDieEnabled;
+        // Persist to localStorage
+        try {
+          localStorage.setItem('swade-wildDieEnabled', state.wildDieEnabled.toString());
+        } catch {}
+      });
+    },
+    setTargetNumber(tn) {
+      set((state) => {
+        state.targetNumber = tn;
+        // Persist to localStorage
+        try {
+          localStorage.setItem('swade-targetNumber', tn.toString());
+        } catch {}
+      });
+    },
+    setResultsDetailsPinned(pinned) {
+      set((state) => {
+        state.resultsDetailsPinned = pinned;
+        // Persist to localStorage
+        try {
+          localStorage.setItem("savage-worlds-results-pinned", pinned.toString());
+        } catch {}
+      });
+    },
+    setResultsDetailsHovered(hovered) {
+      set((state) => {
+        state.resultsDetailsHovered = hovered;
       });
     },
   }))
@@ -131,10 +245,20 @@ function getDiceByIdFromSet(diceSet: DiceSet) {
 /** Generate new dice based off of a set of counts and die */
 export function getDiceToRoll(
   counts: DiceCounts,
-  diceById: Record<string, Die>
+  diceById: Record<string, Die>,
+  wildDieEnabled?: boolean,
+  diceStyle?: string
 ) {
   const dice: (Die | Dice)[] = [];
   const countEntries = Object.entries(counts);
+  
+  // Calculate total dice count for mode detection
+  let totalCount = 0;
+  for (const [, count] of countEntries) {
+    totalCount += count;
+  }
+  
+  // Add regular dice
   for (const [id, count] of countEntries) {
     const die = diceById[id];
     if (!die) {
@@ -145,5 +269,16 @@ export function getDiceToRoll(
       dice.push({ id: generateDiceId(), style, type });
     }
   }
+  
+  // Add wild die if in trait test mode (1 die) and wild die is enabled
+  if (totalCount === 1 && wildDieEnabled) {
+    // Wild die always uses Nebula style to distinguish it
+    dice.push({ 
+      id: generateDiceId(), 
+      style: "NEBULA", 
+      type: "D6"
+    });
+  }
+  
   return dice;
 }

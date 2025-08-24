@@ -37,6 +37,7 @@ export function PhysicsDice({
   onRollFinished,
   children,
   fixedTransform,
+  isFinished,
   ...props
 }: JSX.IntrinsicElements["group"] & {
   die: Die;
@@ -47,6 +48,7 @@ export function PhysicsDice({
     transform: DiceTransform
   ) => void;
   fixedTransform?: DiceTransform;
+  isFinished?: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RapierRigidBody>(null);
@@ -103,7 +105,7 @@ export function PhysicsDice({
           ignorePhysics ||
           (speed < MIN_ROLL_FINISHED_SPEED && validPosition)
         ) {
-          const value = getValueFromDiceGroup(group);
+          const value = getValueFromDiceGroup(group, die.type);
           const position = rigidBody.translation();
           const rotation = rigidBody.rotation();
           const transform = {
@@ -128,18 +130,17 @@ export function PhysicsDice({
   }, [checkRollFinished]);
   useFrame(handleFrame);
 
-  // Lock the dice when we have a manual transform
+  // Lock the dice when we have a manual transform or when it's marked as finished
   useEffect(() => {
-    if (fixedTransform) {
+    if (fixedTransform || isFinished) {
       lockDice();
     }
-  }, [fixedTransform]);
+  }, [fixedTransform, isFinished, lockDice]);
 
   // Stop the roll if over the max roll time
   useEffect(() => {
     let timeout = setTimeout(() => {
       if (!lockedRef.current) {
-        console.warn("Roll exceeded max roll time: stopping dice");
         checkRollFinished(true);
       }
     }, MAX_ROLL_TIME);

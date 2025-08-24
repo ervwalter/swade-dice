@@ -21,16 +21,46 @@ export function DiceHistory() {
   const startRoll = useDiceRollStore((state) => state.startRoll);
 
   const hidden = useDiceControlsStore((state) => state.diceHidden);
-  const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
   );
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
+  const setTraitModifier = useDiceControlsStore((state) => state.setTraitModifier);
+  const setDamageModifier = useDiceControlsStore((state) => state.setDamageModifier);
+  const setTargetNumber = useDiceControlsStore((state) => state.setTargetNumber);
+  const toggleWildDie = useDiceControlsStore((state) => state.toggleWildDie);
+  const currentWildDieEnabled = useDiceControlsStore((state) => state.wildDieEnabled);
 
   function handleRoll(roll: RecentRoll) {
-    const dice = getDiceToRoll(roll.counts, roll.diceById);
-    startRoll({ dice, bonus: roll.bonus, hidden });
+    // Restore Savage Worlds settings from history
+    if (roll.isTraitTest !== undefined) {
+      // Set modifiers based on roll type
+      if (roll.isTraitTest && roll.traitModifier !== undefined) {
+        setTraitModifier(roll.traitModifier);
+      }
+      if (!roll.isTraitTest && roll.damageModifier !== undefined) {
+        setDamageModifier(roll.damageModifier);
+      }
+      
+      // Restore target number for trait tests
+      if (roll.isTraitTest && roll.targetNumber !== undefined) {
+        setTargetNumber(roll.targetNumber);
+      }
+      
+      // Update wild die if different
+      if (roll.wildDieEnabled !== undefined && roll.wildDieEnabled !== currentWildDieEnabled) {
+        toggleWildDie();
+      }
+    }
+    
+    const dice = getDiceToRoll(
+      roll.counts, 
+      roll.diceById, 
+      roll.wildDieEnabled ?? currentWildDieEnabled, 
+      diceSet.dice[0]?.style
+    );
+    startRoll({ dice, bonus: 0, hidden });
     resetDiceCounts();
-    setBonus(0);
     handleClose();
   }
 
@@ -78,7 +108,7 @@ export function DiceHistory() {
           horizontal: "left",
         }}
       >
-        <Stack width="200px" px={1} gap={0.5}>
+        <Stack width="250px" px={1} gap={0.5}>
           {recentRolls.map((recentRoll, index) => (
             <RecentRollChip
               key={index}
@@ -115,27 +145,47 @@ function RecentRollChip({
       }}
       label={
         <Stack direction="row" alignItems="center" gap={0.5} px={2}>
+          {recentRoll.isTraitTest ? (
+            <span style={{ fontSize: "16px" }}>🎯</span>
+          ) : (
+            <span style={{ fontSize: "16px" }}>⚔️</span>
+          )}
           {Object.entries(recentRoll.counts).map(([id, count]) => {
             const die = recentRoll.diceById[id];
             if (!die || count === 0) {
               return null;
             }
+            if (count > 6) {
+              return (
+                <Stack key={id} direction="row" alignItems="center" gap={0.25}>
+                  <span>{count}×</span>
+                  <DicePreview
+                    diceStyle={die.style}
+                    diceType={die.type}
+                    size="small"
+                  />
+                </Stack>
+              );
+            }
             return (
               <Stack key={id} direction="row" alignItems="center" gap={0.25}>
-                {count}{" "}
-                <DicePreview
-                  diceStyle={die.style}
-                  diceType={die.type}
-                  size="small"
-                />
+                {Array.from({ length: count }).map((_, i) => (
+                  <DicePreview
+                    key={`${id}-${i}`}
+                    diceStyle={die.style}
+                    diceType={die.type}
+                    size="small"
+                  />
+                ))}
               </Stack>
             );
           })}
-          {recentRoll.bonus !== 0 && (
-            <span>
-              {recentRoll.bonus > 0 && "+"}
-              {recentRoll.bonus}
-            </span>
+          {recentRoll.wildDieEnabled && recentRoll.isTraitTest && (
+            <DicePreview
+              diceStyle="NEBULA"
+              diceType="D6"
+              size="small"
+            />
           )}
         </Stack>
       }

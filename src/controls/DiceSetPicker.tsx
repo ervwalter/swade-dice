@@ -62,25 +62,30 @@ export function DiceSetPicker() {
         marginThreshold={0}
       >
         <Stack gap={1} alignItems="center" p="2px">
-          {diceSets.map((set) => (
-            <IconButton
-              key={set.id}
-              aria-label={set.name}
-              onClick={() => {
-                changeDiceSet(set);
-                handleClose();
-              }}
-              sx={{
-                padding: "2px",
-                backgroundColor:
-                  diceSet.id === set.id
-                    ? "rgba(255, 255, 255, 0.16) !important"
-                    : undefined,
-              }}
-            >
-              <PreviewImage src={set.previewImage} />
-            </IconButton>
-          ))}
+          {diceSets
+            .filter((set) => 
+              // Exclude Nebula (reserved for wild die) and "all" (multiple types not needed in Savage Worlds)
+              set.id !== "NEBULA_STANDARD" && set.id !== "all"
+            )
+            .map((set) => (
+              <IconButton
+                key={set.id}
+                aria-label={set.name}
+                onClick={() => {
+                  changeDiceSet(set);
+                  handleClose();
+                }}
+                sx={{
+                  padding: "2px",
+                  backgroundColor:
+                    diceSet.id === set.id
+                      ? "rgba(255, 255, 255, 0.16) !important"
+                      : undefined,
+                }}
+              >
+                <PreviewImage src={set.previewImage} />
+              </IconButton>
+            ))}
         </Stack>
       </Menu>
     </>

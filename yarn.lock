@@ -239,6 +239,11 @@
   resolved "https://registry.npmjs.org/@dimforge/rapier3d-compat/-/rapier3d-compat-0.11.2.tgz"
   integrity sha512-vdWmlkpS3G8nGAzLuK7GYTpNdrkn/0NKCe0l1Jqxc7ZZOB3N0q9uG/Ap9l9bothWuAvxscIt0U97GVLr0lXWLg==
 
+"@dimforge/rapier3d-compat@^0.18.2":
+  version "0.18.2"
+  resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.18.2.tgz#31087d36153edeac37fb89f404287bf32a8d757e"
+  integrity sha512-DTXrOsn3ra9ZonB+VyqJc16xnRXWsHVa5FK230Z+R1PJ7q8oSRmWQ+AU6e+IJYBHxkM0a5QVDqd729DyeEhHPA==
+
 "@emotion/babel-plugin@^11.10.0":
   version "11.10.2"
   resolved "https://registry.npmjs.org/@emotion/babel-plugin/-/babel-plugin-11.10.2.tgz"

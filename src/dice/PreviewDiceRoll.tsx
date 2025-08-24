@@ -22,10 +22,12 @@ export function PreviewDiceRoll() {
   const defaultDiceCounts = useDiceControlsStore(
     (state) => state.defaultDiceCounts
   );
+  const wildDieEnabled = useDiceControlsStore((state) => state.wildDieEnabled);
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
 
   const diceRoll = useMemo<DiceRoll>(() => {
-    return { dice: getDiceToRoll(counts, diceById) };
-  }, [counts, diceById]);
+    return { dice: getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style) };
+  }, [counts, diceById, wildDieEnabled, diceSet]);
 
   const dice = useMemo(() => getDieFromDice(diceRoll), [diceRoll]);
 

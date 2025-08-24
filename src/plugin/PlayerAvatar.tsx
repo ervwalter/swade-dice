@@ -6,8 +6,12 @@ import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { usePlayerDice } from "./usePlayerDice";
+import { useRemotePlayerResults } from "../hooks/useRemotePlayerResults";
 
 export function PlayerAvatar({
   player,
@@ -16,14 +20,44 @@ export function PlayerAvatar({
   player: Player;
   onSelect: () => void;
 }) {
-  const { finalValue, finishedRolling } = usePlayerDice(player);
+  const { 
+    finishedRolling,
+    explosionResults,
+    rollValues,
+    dieInfo,
+    controlSettings
+  } = usePlayerDice(player);
+  
+  const { finalResult, isTraitTest, success } = useRemotePlayerResults(
+    explosionResults,
+    rollValues,
+    dieInfo,
+    controlSettings,
+    finishedRolling
+  );
 
   const theme = useTheme();
 
+  // Create badge content with icon for trait tests
+  const badgeContent = finishedRolling ? (
+    isTraitTest ? (
+      <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
+        {finalResult}
+        {success ? (
+          <CheckIcon sx={{ fontSize: "12px", color: "#4caf50" }} />
+        ) : (
+          <CloseIcon sx={{ fontSize: "12px", color: "#f44336" }} />
+        )}
+      </Box>
+    ) : (
+      finalResult
+    )
+  ) : null;
+
   return (
-    <Stack alignItems="center" my={0.5}>
+    <Stack alignItems="center">
       <Badge
-        badgeContent={finishedRolling ? finalValue : null}
+        badgeContent={badgeContent}
         showZero
         overlap="circular"
         anchorOrigin={{
@@ -33,6 +67,8 @@ export function PlayerAvatar({
         sx={{
           ".MuiBadge-badge": {
             bgcolor: "background.paper",
+            minWidth: isTraitTest && finishedRolling ? "auto" : undefined,
+            paddingX: isTraitTest && finishedRolling ? "4px" : undefined,
           },
           pointerEvents: "none",
         }}

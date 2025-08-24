@@ -26,12 +26,14 @@ export function InteractiveTray() {
     <Box
       component="div"
       borderRadius={1}
-      height="100vh"
-      width="calc(100vh / 2)"
+      height="100%"
+      flex={1}
       overflow="hidden"
       position="relative"
       id="interactive-tray"
       sx={{
+        display: "flex",
+        alignItems: "flex-start",  // Align canvas to top
         "& canvas": {
           touchAction: "manipulation",
           userSelect: "none",
@@ -56,8 +58,8 @@ export function InteractiveTray() {
             <InteractiveDiceRoll />
             <PerspectiveCamera
               makeDefault
-              fov={28}
-              position={[0, 4.3, 0]}
+              fov={29}
+              position={[0, 4.3, 0.0]}  // Shift camera back to focus on top area
               rotation={[-Math.PI / 2, 0, 0]}
             />
             {allowOrbit && <OrbitControls />}

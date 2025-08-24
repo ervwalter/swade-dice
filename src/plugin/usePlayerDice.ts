@@ -4,6 +4,7 @@ import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 import { DiceRoll } from "../types/DiceRoll";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
+import { Die } from "../types/Die";
 import { getPluginId } from "./getPluginId";
 
 export function usePlayerDice(player?: Player) {
@@ -27,6 +28,28 @@ export function usePlayerDice(player?: Player) {
     return player?.metadata[getPluginId("rollTransforms")] as
       | Record<string, DiceTransform | null>
       | undefined;
+  }, [player]);
+  
+  const explosionDice = useMemo(() => {
+    return player?.metadata[getPluginId("explosionDice")] as
+      | Die[]
+      | undefined;
+  }, [player]);
+  
+  const explosionResults = useMemo(() => {
+    return player?.metadata[getPluginId("explosionResults")] as any;
+  }, [player]);
+  
+  const dieInfo = useMemo(() => {
+    return player?.metadata[getPluginId("dieInfo")] as any;
+  }, [player]);
+  
+  const currentRollResult = useMemo(() => {
+    return player?.metadata[getPluginId("currentRollResult")] as any;
+  }, [player]);
+  
+  const controlSettings = useMemo(() => {
+    return player?.metadata[getPluginId("controlSettings")] as any;
   }, [player]);
 
   const finishedRollTransforms = useMemo(() => {
@@ -89,8 +112,12 @@ export function usePlayerDice(player?: Player) {
     rollTransforms,
     transformsRef,
     finishedRollTransforms,
-    finalValue,
     finishedRollValues,
     finishedRolling,
+    explosionDice,
+    explosionResults,
+    dieInfo,
+    currentRollResult,
+    controlSettings,
   };
 }

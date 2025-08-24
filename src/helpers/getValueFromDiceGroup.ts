@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { DiceType } from "../types/DiceType";
 
 // Set up the dice roll variables ahead of time to avoid re-creating the objects frequently
 let meshPosition = new THREE.Vector3();
@@ -9,7 +10,7 @@ let dot = -1;
 let highestNumber = 0;
 
 /** Get the number facing up on a 3D dice group */
-export function getValueFromDiceGroup(parent: THREE.Group): number {
+export function getValueFromDiceGroup(parent: THREE.Group, dieType?: DiceType): number {
   // Reset the order variables
   highestDot = -1;
   highestNumber = 0;
@@ -30,6 +31,10 @@ export function getValueFromDiceGroup(parent: THREE.Group): number {
         highestDot = dot;
         // Get the locator number by slicing the name and parsing it
         highestNumber = parseInt(locator.name.slice(12));
+        // D10 special case: 0 represents 10
+        if (highestNumber === 0 && dieType === "D10") {
+          highestNumber = 10;
+        }
       }
     }
   }

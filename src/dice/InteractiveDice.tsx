@@ -7,23 +7,12 @@ import { Die } from "../types/Die";
 import { Dice } from "./Dice";
 import { useDiceRollStore } from "./store";
 import { DiceVector3 } from "../types/DiceVector3";
-import { DiceThrow } from "../types/DiceThrow";
-import {
-  randomAngularVelocity,
-  randomLinearVelocity,
-  randomLinearVelocityFromDirection,
-  randomRotation,
-} from "../helpers/DiceThrower";
+import { DRAG_HEIGHT } from "../constants/savageWorlds";
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-const DRAG_HEIGHT = 0.5;
-const DRAG_HISTORY_WINDOW_SIZE = 5;
-
-type DragState = { p: { x: number; z: number }; t: number };
-
-/** Custom dice can be dragged to re-roll */
+/** Custom dice can be dragged but not re-rolled in Savage Worlds */
 export function InteractiveDice(
   props: JSX.IntrinsicElements["group"] & {
     die: Die;
@@ -31,30 +20,35 @@ export function InteractiveDice(
 ) {
   const diceRef = useRef<THREE.Group>(null);
   const [dragAnchor, setDragAnchor] = useState<DiceVector3 | null>(null);
-
-  const { invalidate, camera, size } = useThree();
-
-  const pointerDownPositionRef = useRef({ x: 0, y: 0 });
-  /** Keep a history of previous drag positions so we can calculate the throw direction and speed */
-  const dragHistoryRef = useRef<DragState[]>([]);
+  const pointerDownPositionRef = useRef<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const { invalidate, size, camera } = useThree();
+  const clearRoll = useDiceRollStore((state) => state.clearRoll);
+  const finishedDice = useDiceRollStore((state) => state.finishedDice);
+  
+  // Check if this die is finished and should be immovable
+  const isFinished = finishedDice.includes(props.die.id);
 
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
+      // Don't allow dragging finished dice
+      if (isFinished) return;
+      
       const dice = diceRef.current;
-      if (dice) {
-        // Find the initial drag position
+      if (dice && e.target instanceof HTMLCanvasElement) {
+        invalidate();
+        // Find pointer location in world space
         const x = Math.min(Math.max(e.offsetX, 0), size.width);
         const y = Math.min(Math.max(e.offsetY, 0), size.height);
         pointer.x = (x / size.width) * 2 - 1;
         pointer.y = -((y / size.height) * 2 - 1);
         raycaster.setFromCamera(pointer, camera);
         const position = raycaster.ray.origin.add(
-          raycaster.ray.direction.multiplyScalar(
-            camera.position.y - DRAG_HEIGHT
-          )
+          raycaster.ray.direction.multiplyScalar(camera.position.y - DRAG_HEIGHT)
         );
-        // Offset the drag anchor so that the x and y animate to the
-        // pointer position
+
         setDragAnchor({
           x: position.x - dice.position.x,
           y: DRAG_HEIGHT,
@@ -64,52 +58,16 @@ export function InteractiveDice(
         pointerDownPositionRef.current = { x: e.offsetX, y: e.offsetY };
       }
     },
-    [size.width, size.height]
+    [size.width, size.height, isFinished, camera, invalidate]
   );
 
-  const reroll = useDiceRollStore((state) => state.reroll);
 
   useEffect(() => {
     if (dragAnchor) {
       const handleUp = (e: PointerEvent) => {
         setDragAnchor(null);
-        const dice = diceRef.current;
-
-        if (dice) {
-          const deltaX = Math.abs(pointerDownPositionRef.current.x - e.offsetX);
-          const deltaY = Math.abs(pointerDownPositionRef.current.y - e.offsetY);
-          const minWidth = Math.max(e.width, 5);
-          const minHeight = Math.max(e.height, 5);
-          if (deltaX > minWidth || deltaY > minHeight) {
-            const position = {
-              x: dice.position.x,
-              // Fix dice throw position a 1 unit
-              y: 1,
-              z: dice.position.z,
-            };
-            // Find the direction of movement
-            let linearVelocity: DiceVector3;
-            const { direction, speed } = findDragVelocity(
-              dragHistoryRef.current
-            );
-            if (direction && speed) {
-              const speedMultiplier = Math.max(1, Math.min(10, speed * 100));
-              linearVelocity = randomLinearVelocityFromDirection(
-                { x: direction.x, y: 0, z: direction.z },
-                speedMultiplier
-              );
-            } else {
-              linearVelocity = randomLinearVelocity(position);
-            }
-            const diceThrow: DiceThrow = {
-              position,
-              linearVelocity,
-              angularVelocity: randomAngularVelocity(),
-              rotation: randomRotation(),
-            };
-            reroll([props.die.id], { [props.die.id]: diceThrow });
-          }
-        }
+        // Drag-to-reroll disabled for Savage Worlds
+        // Individual die rerolls not allowed - rerolls affect the entire test
       };
 
       const handleMove = (e: PointerEvent) => {
@@ -131,19 +89,6 @@ export function InteractiveDice(
           const newDiceX = position.x - dragAnchor.x;
           const newDiceZ = position.z - dragAnchor.z;
 
-          // Push to history
-          const history = dragHistoryRef.current;
-          history.push({
-            p: {
-              x: newDiceX,
-              z: newDiceZ,
-            },
-            t: performance.now(),
-          });
-          if (history.length > DRAG_HISTORY_WINDOW_SIZE) {
-            history.shift();
-          }
-
           dice.position.set(newDiceX, dice.position.y, newDiceZ);
           invalidate();
         }
@@ -161,14 +106,13 @@ export function InteractiveDice(
     camera,
     size.width,
     size.height,
-    reroll,
     props.die.id,
     invalidate,
   ]);
 
   useEffect(() => {
     invalidate();
-  }, [dragAnchor]);
+  }, [dragAnchor, invalidate]);
 
   const { position } = useSpring({
     position: (dragAnchor
@@ -185,44 +129,4 @@ export function InteractiveDice(
       <Dice onPointerDown={handlePointerDown} ref={diceRef} {...props}></Dice>
     </animated.group>
   );
-}
-
-/** Find the average direction and speed of a drag history */
-function findDragVelocity(history: DragState[]) {
-  if (history.length > 1) {
-    let avgDx = 0;
-    let avgDz = 0;
-    let avgSpeed = 0;
-    for (let i = 0; i < history.length - 2; i++) {
-      const curr = history[i];
-      const next = history[i + 1];
-
-      const dx = next.p.x - curr.p.x;
-      const dz = next.p.z - curr.p.z;
-      const dt = next.t - curr.t;
-
-      const vx = dx / dt;
-      const vz = dz / dt;
-      const speed = Math.sqrt(vx * vx + vz * vz);
-
-      avgDx += dx;
-      avgDz += dz;
-      avgSpeed += speed;
-    }
-    avgDx / history.length;
-    avgDz / history.length;
-    avgSpeed / history.length;
-
-    const deltaLength = Math.sqrt(avgDx * avgDx + avgDz * avgDz);
-    if (!isNaN(deltaLength) && deltaLength !== 0) {
-      // Normalize drag delta
-      const direction = {
-        x: avgDx / deltaLength,
-        z: avgDz / deltaLength,
-      };
-      return { direction, speed: avgSpeed };
-    }
-  }
-
-  return { direction: undefined, speed: undefined };
 }

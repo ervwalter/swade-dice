@@ -9,7 +9,6 @@ import { Canvas } from "@react-three/fiber";
 import { Player } from "@owlbear-rodeo/sdk";
 
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Fade from "@mui/material/Fade";
 import Backdrop from "@mui/material/Backdrop";
@@ -19,7 +18,9 @@ import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import environment from "../environment.hdr";
 import { GradientOverlay } from "../controls/GradientOverlay";
-import { DiceResults } from "../controls/DiceResults";
+import { SavageWorldsResults } from "../controls/SavageWorldsResults";
+import { SavageWorldsResultsSummary } from "../controls/SavageWorldsResultsSummary";
+import { useRemotePlayerResults } from "../hooks/useRemotePlayerResults";
 import { usePlayerDice } from "./usePlayerDice";
 import { PlayerDiceRoll } from "./PlayerDiceRoll";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
@@ -95,10 +96,50 @@ export function PlayerTray({
 }
 
 function PlayerTrayResults({ player }: { player?: Player }) {
-  const { diceRoll, finalValue, finishedRollValues, finishedRolling } =
-    usePlayerDice(player);
+  const { 
+    diceRoll, 
+    explosionResults,
+    rollValues,
+    dieInfo,
+    controlSettings,
+    finishedRolling 
+  } = usePlayerDice(player);
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
+  
+  const {
+    mainChains,
+    wildChains,
+    isTraitTest,
+    modifier,
+    mainTotal,
+    finalResult,
+    success,
+    raises,
+    targetNumber,
+    hasResults
+  } = useRemotePlayerResults(
+    explosionResults,
+    rollValues,
+    dieInfo,
+    controlSettings,
+    finishedRolling
+  );
+  
+  const resultsData = {
+    mainChains,
+    wildChains,
+    isTraitTest,
+    modifier,
+    mainTotal,
+    finalResult,
+    isComplete: finishedRolling,
+    success,
+    raises,
+    targetNumber,
+    hasResults,
+  };
+
   return (
     <>
       {diceRoll?.hidden && (
@@ -108,43 +149,51 @@ function PlayerTrayResults({ player }: { player?: Player }) {
           </Tooltip>
         </Backdrop>
       )}
-      {finalValue !== null && (
+      {hasResults && finishedRolling && (
         <>
           <Fade in>
             <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
           </Fade>
           <GradientOverlay />
+          {/* Main summary at the top with background */}
           <Fade in>
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                pointerEvents: "none",
-                padding: 3,
-              }}
-              component="div"
-            >
-              <Stack
-                direction="row"
-                justifyContent="center"
-                width="100%"
-                alignItems="start"
+            <div>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  borderRadius: "0 0 8px 8px",
+                  padding: "12px 16px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+                component="div"
               >
-                {finishedRolling &&
-                  diceRoll &&
-                  finishedRollValues &&
-                  finalValue !== null && (
-                    <DiceResults
-                      diceRoll={diceRoll}
-                      rollValues={finishedRollValues}
-                      expanded={resultsExpanded}
-                      onExpand={setResultsExpanded}
-                    />
-                  )}
-              </Stack>
-            </Box>
+                <SavageWorldsResultsSummary
+                  results={resultsData}
+                  hidden={diceRoll?.hidden}
+                />
+              </Box>
+              
+              {/* Detailed results below the summary */}
+              <Box 
+                component="div"
+                position="absolute"
+                top={56}
+                left={0}
+                right={0}
+                bgcolor="rgba(0, 0, 0, 0.7)"
+                borderRadius="0 0 8px 8px"
+                padding="8px 16px"
+                display="flex"
+                justifyContent="center"
+              >
+                <SavageWorldsResults results={resultsData} />
+              </Box>
+            </div>
           </Fade>
         </>
       )}

@@ -8,21 +8,18 @@ import Fade from "@mui/material/Fade";
 import { useTheme, keyframes } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
-import Typography from "@mui/material/Typography";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 import RollIcon from "@mui/icons-material/ArrowForwardRounded";
 
-import { RerollDiceIcon } from "../icons/RerollDiceIcon";
-
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { DiceResults } from "./DiceResults";
 import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { DiceType } from "../types/DiceType";
 import { useDiceHistoryStore } from "./history";
 import { Die } from "../types/Die";
+import { FinishedRollResultsWrapper } from "./FinishedRollResultsWrapper";
 
 const jiggle = keyframes`
 0% { transform: translate(0, 0) rotate(0deg); }
@@ -38,15 +35,14 @@ export function DiceRollControls() {
   );
 
   const counts = useDiceControlsStore((state) => state.diceCounts);
-  const bonus = useDiceControlsStore((state) => state.diceBonus);
-  // Is currently the default dice state (all counts 0 and bonus defaults)
+  // Is currently the default dice state (all counts 0)
+  // Note: modifier is not part of this check - it persists across rolls
   const isDefault = useMemo(
     () =>
       Object.entries(defaultDiceCounts).every(
         ([type, count]) => counts[type as DiceType] === count
-      ) &&
-      bonus === 0,
-    [counts, defaultDiceCounts, bonus]
+      ),
+    [counts, defaultDiceCounts]
   );
 
   const rollValues = useDiceRollStore((state) => state.rollValues);
@@ -89,8 +85,11 @@ function DicePickedControls() {
   const diceById = useDiceControlsStore((state) => state.diceById);
   const counts = useDiceControlsStore((state) => state.diceCounts);
   const hidden = useDiceControlsStore((state) => state.diceHidden);
-  const bonus = useDiceControlsStore((state) => state.diceBonus);
-  const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
+  const wildDieEnabled = useDiceControlsStore((state) => state.wildDieEnabled);
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
+  const traitModifier = useDiceControlsStore((state) => state.traitModifier);
+  const damageModifier = useDiceControlsStore((state) => state.damageModifier);
+  const targetNumber = useDiceControlsStore((state) => state.targetNumber);
 
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
@@ -100,10 +99,38 @@ function DicePickedControls() {
 
   function handleRoll() {
     if (hasDice && rollPressTime) {
-      const dice = getDiceToRoll(counts, diceById);
+      // Clear any previous explosion state
+        
+      const dice = getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style);
       const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
       const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
-      startRoll({ dice, bonus, hidden }, speedMultiplier);
+      
+      // Determine if this is a trait test based on dice count
+      const totalDiceCount = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      const isTraitTest = totalDiceCount === 1;
+      
+      // Find wild die ID if present
+      let wildDieId: string | undefined;
+      if (isTraitTest && wildDieEnabled && dice.length > 1) {
+        // Wild die is the Nebula D6 we added
+        const wildDie = dice.find(d => 'type' in d && d.type === 'D6' && d.style === 'NEBULA');
+        if (wildDie && 'id' in wildDie) {
+          wildDieId = wildDie.id;
+        }
+      }
+      
+      // Build roll with Savage Worlds config
+      startRoll({ 
+        dice, 
+        bonus: 0, 
+        hidden,
+        savageWorldsConfig: {
+          rollType: isTraitTest ? "trait" : "damage",
+          modifier: isTraitTest ? traitModifier : damageModifier,
+          targetNumber,
+          wildDieId
+        }
+      }, speedMultiplier);
 
       const rolledDiceById: Record<string, Die> = {};
       for (const id of Object.keys(counts)) {
@@ -111,7 +138,21 @@ function DicePickedControls() {
           rolledDiceById[id] = diceById[id];
         }
       }
-      pushRecentRoll({ counts, bonus, diceById: rolledDiceById });
+      
+      // Note: We can't calculate the final result here since the dice haven't rolled yet
+      // The finalResult will be undefined until we implement a way to update it after rolling
+      pushRecentRoll({ 
+        counts, 
+        bonus: 0,  // Legacy field
+        diceById: rolledDiceById,
+        // Savage Worlds data
+        isTraitTest,
+        traitModifier,
+        damageModifier,
+        targetNumber,
+        wildDieEnabled,
+        // finalResult will be added later when we can track roll completion
+      });
 
       handleReset();
     }
@@ -120,7 +161,7 @@ function DicePickedControls() {
 
   function handleReset() {
     resetDiceCounts();
-    setBonus(0);
+    // Don't reset modifier - it's ephemeral but persists across rolls in a session
   }
 
   const rollPressTime = useDiceControlsStore(
@@ -205,6 +246,7 @@ function DicePickedControls() {
             right: 0,
             bottom: 0,
           }}
+          fontSize="54px"
         >
           <Button
             sx={{
@@ -259,111 +301,11 @@ function DicePickedControls() {
           </IconButton>
         </Tooltip>
       </Stack>
-      <Stack
-        sx={{
-          position: "absolute",
-          top: 12,
-          right: 24,
-        }}
-      >
-        {bonus !== 0 && (
-          <Typography
-            textAlign="right"
-            variant="h6"
-            lineHeight="40px"
-            color="white"
-          >
-            {bonus > 0 && "+"}
-            {bonus}
-          </Typography>
-        )}
-      </Stack>
+      {/* Modifier display removed - now shown in SavageWorldsResults */}
     </>
   );
 }
 
 function FinishedRollControls() {
-  const roll = useDiceRollStore((state) => state.roll);
-  const clearRoll = useDiceRollStore((state) => state.clearRoll);
-  const reroll = useDiceRollStore((state) => state.reroll);
-
-  const rollValues = useDiceRollStore((state) => state.rollValues);
-  const finishedRollValues = useMemo(() => {
-    const values: Record<string, number> = {};
-    for (const [id, value] of Object.entries(rollValues)) {
-      if (value !== null) {
-        values[id] = value;
-      }
-    }
-    return values;
-  }, [rollValues]);
-
-  const [resultsExpanded, setResultsExpanded] = useState(false);
-
-  return (
-    <>
-      <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
-      <Box
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          pointerEvents: "none",
-          padding: 3,
-        }}
-        component="div"
-      >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          width="100%"
-          alignItems="start"
-        >
-          <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
-            <IconButton
-              onClick={() => reroll()}
-              sx={{ pointerEvents: "all", color: "white" }}
-            >
-              <RerollDiceIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
-            <IconButton
-              onClick={() => clearRoll()}
-              sx={{ pointerEvents: "all", color: "white" }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      </Box>
-      <Stack
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          pointerEvents: "none",
-          padding: 3,
-          alignItems: "center",
-        }}
-        component="div"
-      >
-        {roll && (
-          <DiceResults
-            diceRoll={roll}
-            rollValues={finishedRollValues}
-            expanded={resultsExpanded}
-            onExpand={setResultsExpanded}
-          />
-        )}
-        {roll?.hidden && (
-          <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
-            <HiddenIcon htmlColor="white" />
-          </Tooltip>
-        )}
-      </Stack>
-    </>
-  );
+  return <FinishedRollResultsWrapper />;
 }

@@ -5,8 +5,17 @@ import { Die } from "../types/Die";
 
 export interface RecentRoll {
   counts: DiceCounts;
-  bonus: number;
+  bonus: number;  // Legacy field, kept for compatibility
   diceById: Record<string, Die>;
+  // Savage Worlds specific data
+  isTraitTest?: boolean;
+  traitModifier?: number;
+  damageModifier?: number;
+  targetNumber?: number;
+  wildDieEnabled?: boolean;
+  finalResult?: number;
+  success?: boolean;
+  raises?: number;
 }
 
 interface DiceHistoryState {

@@ -1,33 +1,23 @@
-import { useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { DiceTransform } from "../types/DiceTransform";
 import { DiceRoll } from "./DiceRoll";
-import { InteractiveDice } from "./InteractiveDice";
 import { useDiceRollStore } from "./store";
+import { Dice } from "./Dice";
 
 /** Dice roll based off of the values from the dice roll store */
 export function InteractiveDiceRoll() {
   const roll = useDiceRollStore((state) => state.roll);
   const rollThrows = useDiceRollStore((state) => state.rollThrows);
-  const finishDieRoll = useDiceRollStore((state) => state.finishDieRoll);
-
-  const finishedTransforms = useDiceRollStore((state) => {
-    const values = Object.values(state.rollTransforms);
-    if (values.some((v) => v === null)) {
-      return undefined;
-    }
-    return state.rollTransforms as Record<string, DiceTransform>;
-  });
-
-  const transformsRef = useRef<Record<string, DiceTransform | null> | null>(
-    null
-  );
-  useEffect(
-    () =>
-      useDiceRollStore.subscribe((state) => {
-        transformsRef.current = state.rollTransforms;
-      }),
-    []
-  );
+  const explosionDice = useDiceRollStore((state) => state.explosionDice);
+  const finishedDice = useDiceRollStore((state) => state.finishedDice);
+  const checkAndProcessExplosion = useDiceRollStore((state) => state.checkAndProcessExplosion);
+  
+  // Handle die finished - check for explosions and update store
+  const handleDieFinished = useCallback((id: string, value: number, transform: DiceTransform) => {
+    // Check for explosions and update Savage Worlds state in store
+    // This will also spawn explosion dice if needed
+    checkAndProcessExplosion(id, value, transform);
+  }, [checkAndProcessExplosion]);
 
   if (!roll) {
     return null;
@@ -37,10 +27,10 @@ export function InteractiveDiceRoll() {
     <DiceRoll
       roll={roll}
       rollThrows={rollThrows}
-      finishedTransforms={finishedTransforms}
-      onRollFinished={finishDieRoll}
-      Dice={InteractiveDice}
-      transformsRef={transformsRef}
+      explosionDice={explosionDice}
+      finishedDice={finishedDice}
+      onRollFinished={handleDieFinished}
+      Dice={Dice}
     />
   );
 }

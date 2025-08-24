@@ -10,8 +10,8 @@
     "title": "Savage Worlds Dice",
     "icon": "/icon.svg",
     "popover": "/",
-    "height": 700,
-    "width": 375
+    "height": 600,
+    "width": 360
   },
   "background_url": "/background.html"
 }
