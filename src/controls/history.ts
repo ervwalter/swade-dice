@@ -8,7 +8,7 @@ export interface RecentRoll {
   bonus: number;  // Legacy field, kept for compatibility
   diceById: Record<string, Die>;
   // Savage Worlds specific data
-  isTraitTest?: boolean;
+  rollMode: 'TRAIT' | 'DAMAGE';
   traitModifier?: number;
   damageModifier?: number;
   targetNumber?: number;

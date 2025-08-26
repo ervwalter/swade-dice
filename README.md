@@ -1,71 +1,43 @@
 # Savage Worlds Dice
 
-Beautiful 3D dice extension for Savage Worlds Adventure Edition (SWADE)
+Beautiful, deterministic 3D dice for Savage Worlds Adventure Edition (SWADE), built with React, Three.js, and the Rapier physics engine. Ships as an Owlbear Rodeo extension and runs standalone for local testing.
 
 ![Example](/docs/header.jpg)
 
-## Installing
+## Features
+- SWADE mechanics: Trait and Damage rolls, exploding dice, target number and raises, optional Wild Die.
+- Deterministic physics: results sync across players by sharing seeds and initial throws (no network jitter issues).
+- Rich visuals and audio: multiple materials, accurate colliders, environment lighting, and roll sounds.
+- Player popovers in Owlbear Rodeo: preview other players’ trays and open their tray in focus.
+- Fairness tooling: built‑in roll distribution charts and chi‑squared check for sanity testing.
 
-The extension can be installed from the [store page](https://extensions.owlbear.rodeo/savage-worlds-dice).
+## How It Works
+The roll pipeline seeds a Rapier simulation, derives per‑die throws deterministically, and computes values from final transforms. Explosions are spawned when a die lands on its max face (e.g., D6→6). For Trait tests, the Wild Die (Nebula D6) is rolled alongside your trait die and the best total (plus modifiers) is compared to the target number; raises are calculated in steps of +4.
 
-## How it Works
+In Owlbear Rodeo, the extension syncs via player metadata. Because physics are deterministic, only inputs (seed, throws, dice) and results are shared; each client simulates locally for smooth animation.
 
-This project uses [React](https://reactjs.org/) for UI, [Three.js](https://threejs.org/) for rendering and [Rapier](https://rapier.rs/) for physics.
+## Using the App
+- Local UI: pick a set and dice in the left rail, set Target Number and modifiers in the top bar, then press and hold on the tray to “charge” a stronger throw. Results appear with total, raises, and explosion history.
+- Wild Die: enable in the top bar when making Trait tests (single trait die selected). The UI highlights the best die.
+- Fairness Tester: toggle from the sidebar and run distributions to visualize balance.
 
-The physics simulation is used to both generate the animation for the roll as well as the final roll values.
+## Develop & Build
+- Install: `yarn`
+- Dev server: `yarn dev` (Vite at http://localhost:5173)
+- Production build: `yarn build` → outputs to `dist/`
+- Preview build: `yarn preview`
 
-> Wait is it really random if physics is used to determine the result? How do I know the dice rolls are fair?
-
-Short answer yes, the dice are fair. Long answer [here's a statistical analysis](https://blog.owlbear.rodeo/are-owlbear-rodeos-dice-fair/) of the rolling methodology.
-
-In order to sync rolls over the network efficiently we rely on the fact the Rapier is a deterministic physics engine. This means that across two different computers we'll get the same result given the same initial parameters.
-
-So we only need to make sure that all the initial parameters are synced and then each client can run its own simulation and end up with the correct animation.
-
-To try out the dice roller outside of Owlbear Rodeo you can head to <https://dice.owlbear.rodeo/>.
-
-## Building
-
-This project uses [Yarn](https://yarnpkg.com/) as a package manager.
-
-To install all the dependencies run:
-
-`yarn`
-
-To run in a development mode run:
-
-`yarn dev`
-
-To make a production build run:
-
-`yarn build`
+Owlbear Rodeo extension entry points:
+- `index.html` → main app (`src/main.tsx` / `src/App.tsx`)
+- `background.html` → registers the popover (`src/background.ts`)
+- `popover.html` → player trays (`src/popover.tsx`)
 
 ## Project Structure
-
-All source files can be found in the `src` folder.
-
-If you'd like to create a new dice set with the existing dice styles edit the `diceSets.ts` file in the `sets` folder.
-
-If you'd like to add a new dice style the 3D models for the dice are split across four folders: `materials`, `meshes`, `colliders` and `previews`.
-
-The `materials` folder contains the PBR materials for each dice style.
-
-The `meshes` folder contains the 3D geometry used for the dice.
-
-The `colliders` folder contains the simplified collider geometry for the dice.
-
-The `previews` folder contains 2D image previews for each dice.
-
-All the code specific for the Owlbear Rodeo extension is in the `plugin` folder.
+- `src/tray`, `src/dice`, `src/controls`: tray rendering, physics roll flow, and UI controls.
+- `src/plugin`: Owlbear Rodeo integration (metadata sync, popovers, themes).
+- `src/materials`, `src/meshes`, `src/colliders`, `src/previews`: assets and rendering helpers.
+- `src/tests`: manual fairness tools (charts, tester button).
+- `src/sets`: dice set definitions.
 
 ## License
-
-GNU GPLv3
-
-## Contributing
-
-This project is provided as an example of how to use the Owlbear Rodeo SDK. As such it is unlikely that we will accept pull requests for new features.
-
-Instead we encourage you to fork this repository and build the dice roller of your dreams.
-
-Copyright (C) 2023 Owlbear Rodeo
+GNU GPLv3. See LICENSE for details.

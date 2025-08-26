@@ -20,8 +20,26 @@ export function DamageModifier() {
   const open = Boolean(anchorEl);
   
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(event.currentTarget);
-    setCustomValue(modifier.toString());
+    // Check if this is a touch event or shift+click - open dialog
+    const isTouch = event.nativeEvent && 'touches' in event.nativeEvent;
+    if (isTouch || event.shiftKey) {
+      setAnchorEl(event.currentTarget);
+      setCustomValue(modifier.toString());
+      return;
+    }
+    
+    // Regular left click - increment by 1
+    if (isDamageRoll) {
+      setModifier(modifier + 1);
+    }
+  }
+
+  function handleContextMenu(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault(); // Prevent browser context menu
+    // Right click - decrement by 1
+    if (isDamageRoll) {
+      setModifier(modifier - 1);
+    }
   }
   
   function handleClose() {
@@ -58,6 +76,7 @@ export function DamageModifier() {
         <span>
           <IconButton
             onClick={handleClick}
+            onContextMenu={handleContextMenu}
             aria-controls={open ? "damage-modifier-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
@@ -94,14 +113,6 @@ export function DamageModifier() {
         }}
       >
         <Stack sx={{ p: 2, minWidth: 250 }}>
-          <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: "bold" }}>
-            Damage Modifier
-          </Typography>
-          
-          <Typography variant="caption" color="text.secondary" gutterBottom sx={{ mb: 1 }}>
-            Applies to multi-die damage rolls
-          </Typography>
-          
           <Typography variant="subtitle2" gutterBottom>
             Quick Select:
           </Typography>
@@ -155,7 +166,7 @@ export function DamageModifier() {
               type="number"
               value={customValue}
               onChange={handleCustomChange}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCustomSubmit();
                 }

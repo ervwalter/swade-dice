@@ -30,20 +30,24 @@ export function DiceHistory() {
   const setTargetNumber = useDiceControlsStore((state) => state.setTargetNumber);
   const toggleWildDie = useDiceControlsStore((state) => state.toggleWildDie);
   const currentWildDieEnabled = useDiceControlsStore((state) => state.wildDieEnabled);
+  const setModeChoice = useDiceControlsStore((state) => state.setModeChoice);
 
   function handleRoll(roll: RecentRoll) {
     // Restore Savage Worlds settings from history
-    if (roll.isTraitTest !== undefined) {
+    if (roll.rollMode) {
+      // Set the explicit mode
+      setModeChoice(roll.rollMode);
+      
       // Set modifiers based on roll type
-      if (roll.isTraitTest && roll.traitModifier !== undefined) {
+      if (roll.rollMode === 'TRAIT' && roll.traitModifier !== undefined) {
         setTraitModifier(roll.traitModifier);
       }
-      if (!roll.isTraitTest && roll.damageModifier !== undefined) {
+      if (roll.rollMode === 'DAMAGE' && roll.damageModifier !== undefined) {
         setDamageModifier(roll.damageModifier);
       }
       
       // Restore target number for trait tests
-      if (roll.isTraitTest && roll.targetNumber !== undefined) {
+      if (roll.rollMode === 'TRAIT' && roll.targetNumber !== undefined) {
         setTargetNumber(roll.targetNumber);
       }
       
@@ -57,7 +61,8 @@ export function DiceHistory() {
       roll.counts, 
       roll.diceById, 
       roll.wildDieEnabled ?? currentWildDieEnabled, 
-      diceSet.dice[0]?.style
+      diceSet.dice[0]?.style,
+      roll.rollMode === 'TRAIT'
     );
     startRoll({ dice, bonus: 0, hidden });
     resetDiceCounts();
@@ -145,7 +150,7 @@ function RecentRollChip({
       }}
       label={
         <Stack direction="row" alignItems="center" gap={0.5} px={2}>
-          {recentRoll.isTraitTest ? (
+          {recentRoll.rollMode === 'TRAIT' ? (
             <span style={{ fontSize: "16px" }}>🎯</span>
           ) : (
             <span style={{ fontSize: "16px" }}>⚔️</span>
@@ -180,7 +185,7 @@ function RecentRollChip({
               </Stack>
             );
           })}
-          {recentRoll.wildDieEnabled && recentRoll.isTraitTest && (
+          {recentRoll.wildDieEnabled && recentRoll.rollMode === 'TRAIT' && (
             <DicePreview
               diceStyle="NEBULA"
               diceType="D6"

@@ -68,8 +68,11 @@ export function SavageWorldsResultsSummaryContainer() {
         
         {/* Result summary in the middle */}
         <SavageWorldsResultsSummary
-          results={results}
+          fontSize="0.9em"
+          result={results}
           hidden={roll?.hidden}
+          singleLine={true}
+          hidePrefix={true}
           variant="body1"
         />
         

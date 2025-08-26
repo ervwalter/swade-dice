@@ -9,6 +9,9 @@ import { useEffect, useState } from "react";
  */
 function getTheme(theme?: Theme) {
   return createTheme({
+    typography: {
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    },
     palette: theme
       ? {
           mode: theme.mode === "LIGHT" ? "light" : "dark",

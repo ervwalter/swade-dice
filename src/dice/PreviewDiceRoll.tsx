@@ -23,11 +23,13 @@ export function PreviewDiceRoll() {
     (state) => state.defaultDiceCounts
   );
   const wildDieEnabled = useDiceControlsStore((state) => state.wildDieEnabled);
+  const rollMode = useDiceControlsStore((state) => state.rollMode);
   const diceSet = useDiceControlsStore((state) => state.diceSet);
 
   const diceRoll = useMemo<DiceRoll>(() => {
-    return { dice: getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style) };
-  }, [counts, diceById, wildDieEnabled, diceSet]);
+    const isTraitMode = rollMode === "TRAIT";
+    return { dice: getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style, isTraitMode) };
+  }, [counts, diceById, wildDieEnabled, rollMode, diceSet]);
 
   const dice = useMemo(() => getDieFromDice(diceRoll), [diceRoll]);
 

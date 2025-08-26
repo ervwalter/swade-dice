@@ -13,11 +13,16 @@ export function DicePicker() {
   const handleDiceCountIncrease = useDiceControlsStore(
     (state) => state.incrementDieCount
   );
+  const handleDiceCountDecrease = useDiceControlsStore(
+    (state) => state.decrementDieCount
+  );
+  const setModeChoice = useDiceControlsStore((state) => state.setModeChoice);
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
   const roll = useDiceRollStore((state) => state.roll);
   function clearRollIfNeeded() {
     if (roll) {
       clearRoll();
+      setModeChoice('AUTO');  // Reset mode when starting a new roll
     }
   }
 
@@ -45,6 +50,11 @@ export function DicePicker() {
             <IconButton
               onClick={() => {
                 handleDiceCountIncrease(id);
+                clearRollIfNeeded();
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault(); // Prevent browser context menu
+                handleDiceCountDecrease(id);
                 clearRollIfNeeded();
               }}
               sx={{ p: 0 }}

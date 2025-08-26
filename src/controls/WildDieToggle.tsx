@@ -20,9 +20,9 @@ export function WildDieToggle() {
   
   // Enabled when:
   // 1. No dice selected (0 dice) AND no active roll - setting for next roll
-  // 2. Exactly 1 die selected AND no active roll - trait test mode
+  // 2. In trait mode AND no active roll
   // 3. Looking at completed trait test results
-  const isEnabled = (!hasActiveRoll && (currentSelectionCount === 0 || currentSelectionCount === 1)) || 
+  const isEnabled = (!hasActiveRoll && (currentSelectionCount === 0 || isTraitTest)) || 
                     (hasActiveRoll && isTraitTest);
   
   function handleToggle() {

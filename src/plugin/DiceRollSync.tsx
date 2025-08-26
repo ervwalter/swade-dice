@@ -1,54 +1,46 @@
 import OBR from "@owlbear-rodeo/sdk";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDiceRollStore } from "../dice/store";
-import { useDiceControlsStore } from "../controls/store";
+import { useSavageWorldsResults } from "../hooks/useSavageWorldsResults";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { getPluginId } from "./getPluginId";
-import { isTraitTestFromDiceInfo } from "../helpers/determineRollType";
+import { useRollHistoryStore } from "./rollHistoryStore";
 
 /** Sync the current dice roll to the plugin */
 export function DiceRollSync() {
   const prevIds = useRef<string[]>([]);
   const prevResultTimestamp = useRef<number>(0);
+  const [currentPlayer, setCurrentPlayer] = useState<any>(null);
   
-  // Subscribe to control changes to trigger resync
+  // Get the current result (with dynamic recalculation)
+  const currentResult = useSavageWorldsResults();
+  
+  // Get roll history store
+  const addOrUpdateRoll = useRollHistoryStore((state: any) => state.addOrUpdateRoll);
+
+  // Get current player info
   useEffect(() => {
-    return useDiceControlsStore.subscribe(() => {
-      // When controls change, trigger a resync of the current state
-      const diceState = useDiceRollStore.getState();
-      if (diceState.roll && diceState.currentRollResult) {
-        // Force a sync by updating the metadata
-        const controlsState = useDiceControlsStore.getState();
+    const getCurrentPlayer = async () => {
+      try {
+        const [name, color, id] = await Promise.all([
+          OBR.player.getName(),
+          OBR.player.getColor(),
+          OBR.player.getId()
+        ]);
         
-        const isTraitTest = isTraitTestFromDiceInfo(diceState.dieInfo);
-        
-        const throws = diceState.roll.hidden ? undefined : diceState.rollThrows;
-        const values = diceState.roll.hidden ? undefined : diceState.rollValues;
-        const transforms = diceState.roll.hidden ? undefined : diceState.rollTransforms;
-        const explosionDice = diceState.roll.hidden ? undefined : diceState.explosionDice;
-        const explosionResults = diceState.roll.hidden ? undefined : diceState.explosionResults;
-        const dieInfo = diceState.roll.hidden ? undefined : diceState.dieInfo;
-        
-        const controlSettings = diceState.roll.hidden ? undefined : {
-          traitModifier: controlsState.traitModifier,
-          damageModifier: controlsState.damageModifier,
-          targetNumber: controlsState.targetNumber,
-          wildDieEnabled: controlsState.wildDieEnabled,
-          isTraitTest,
-        };
-        
-        OBR.player.setMetadata({
-          [getPluginId("roll")]: diceState.roll,
-          [getPluginId("rollThrows")]: throws,
-          [getPluginId("rollValues")]: values,
-          [getPluginId("rollTransforms")]: transforms,
-          [getPluginId("explosionDice")]: explosionDice,
-          [getPluginId("explosionResults")]: explosionResults,
-          [getPluginId("dieInfo")]: dieInfo,
-          [getPluginId("controlSettings")]: controlSettings,
+        setCurrentPlayer({
+          connectionId: id,
+          id: id,
+          name: name,
+          color: color,
+          metadata: {}
         });
+      } catch (error) {
+        console.error('Failed to get current player info:', error);
       }
-    });
+    };
+    
+    getCurrentPlayer();
   }, []);
   
   useEffect(
@@ -93,44 +85,65 @@ export function DiceRollSync() {
         }
 
         if (shouldSync) {
-          // Get control settings
-          const controlsState = useDiceControlsStore.getState();
-          
           // Hide values if needed
           const throws = state.roll?.hidden ? undefined : state.rollThrows;
           const values = state.roll?.hidden ? undefined : state.rollValues;
-          const transforms = state.roll?.hidden
-            ? undefined
-            : state.rollTransforms;
-          const explosionDice = state.roll?.hidden ? undefined : state.explosionDice;
-          const explosionResults = state.roll?.hidden ? undefined : state.explosionResults;
-          const dieInfo = state.roll?.hidden ? undefined : state.dieInfo;
-          
-          const isTraitTest = isTraitTestFromDiceInfo(state.dieInfo);
-          
-          // Include control settings for remote calculation
-          const controlSettings = state.roll?.hidden ? undefined : {
-            traitModifier: controlsState.traitModifier,
-            damageModifier: controlsState.damageModifier,
-            targetNumber: controlsState.targetNumber,
-            wildDieEnabled: controlsState.wildDieEnabled,
-            isTraitTest,
-          };
+          const transforms = state.roll?.hidden ? undefined : state.rollTransforms;
+          // Use the dynamically recalculated result instead of the static one
+          const resultToSend = state.roll?.hidden ? undefined : currentResult;
           
           OBR.player.setMetadata({
             [getPluginId("roll")]: state.roll,
             [getPluginId("rollThrows")]: throws,
             [getPluginId("rollValues")]: values,
             [getPluginId("rollTransforms")]: transforms,
-            [getPluginId("explosionDice")]: explosionDice,
-            [getPluginId("explosionResults")]: explosionResults,
-            [getPluginId("dieInfo")]: dieInfo,
-            [getPluginId("controlSettings")]: controlSettings,
+            [getPluginId("currentRollResult")]: resultToSend,
           });
+
+          // Note: Roll history is handled in the second useEffect below
+          // since currentResult (from hook) isn't available in this subscription callback
         }
       }),
-    []
+    [currentResult, currentPlayer, addOrUpdateRoll]
   );
+
+  // Sync results and manage roll history
+  useEffect(() => {
+    const rollState = useDiceRollStore.getState();
+    const hasCompletedRoll = rollState.roll && rollState.currentRollResult;
+    
+    console.log('DiceRollSync: checking roll state', {
+      hasRoll: !!rollState.roll,
+      hasCurrentRollResult: !!rollState.currentRollResult,
+      hasCompletedRoll,
+      hasCurrentResult: !!currentResult,
+      currentResultComplete: currentResult?.isComplete
+    });
+    
+    if (hasCompletedRoll && currentResult) {
+      // Send updated result to remote players
+      const resultToSend = rollState.roll?.hidden ? undefined : currentResult;
+      
+      console.log('DiceRollSync: setting completed roll metadata', {
+        isHidden: rollState.roll?.hidden,
+        hasResultToSend: !!resultToSend,
+        timestamp: resultToSend?.timestamp
+      });
+      
+      OBR.player.setMetadata({
+        [getPluginId("currentRollResult")]: resultToSend,
+      });
+
+      // Note: Roll history is managed by PopoverTrays reading from player metadata
+      // since the popover runs in a separate iframe and can't access this store
+    } else if (!rollState.roll) {
+      // Clear result when there's no active roll
+      console.log('DiceRollSync: clearing roll metadata (no active roll)');
+      OBR.player.setMetadata({
+        [getPluginId("currentRollResult")]: undefined,
+      });
+    }
+  }, [currentResult, currentPlayer, addOrUpdateRoll]);
 
   return null;
 }

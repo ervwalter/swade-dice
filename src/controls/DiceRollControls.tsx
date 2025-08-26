@@ -1,25 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Tooltip from "@mui/material/Tooltip";
-import Fade from "@mui/material/Fade";
-import { useTheme, keyframes } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
+import Fade from "@mui/material/Fade";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import { keyframes } from "@mui/material/styles";
+import Tooltip from "@mui/material/Tooltip";
 
-import CloseIcon from "@mui/icons-material/CloseRounded";
-import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 import RollIcon from "@mui/icons-material/ArrowForwardRounded";
+import CloseIcon from "@mui/icons-material/CloseRounded";
 
-import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { DiceType } from "../types/DiceType";
-import { useDiceHistoryStore } from "./history";
 import { Die } from "../types/Die";
 import { FinishedRollResultsWrapper } from "./FinishedRollResultsWrapper";
+import { useDiceHistoryStore } from "./history";
+import { getDiceToRoll, useDiceControlsStore } from "./store";
+import { ModeSelector } from "./ModeSelector";
 
 const jiggle = keyframes`
 0% { transform: translate(0, 0) rotate(0deg); }
@@ -96,18 +94,22 @@ function DicePickedControls() {
   );
 
   const pushRecentRoll = useDiceHistoryStore((state) => state.pushRecentRoll);
+  
+  // Roll mode state from store
+  const rollMode = useDiceControlsStore((state) => state.rollMode);
+  const modeChoice = useDiceControlsStore((state) => state.modeChoice);
+  const setModeChoice = useDiceControlsStore((state) => state.setModeChoice);
 
   function handleRoll() {
     if (hasDice && rollPressTime) {
       // Clear any previous explosion state
         
-      const dice = getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style);
+      // Use rollMode from store (already computed)
+      const isTraitTest = rollMode === "TRAIT";
+      
+      const dice = getDiceToRoll(counts, diceById, wildDieEnabled, diceSet.dice[0]?.style, isTraitTest);
       const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
       const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
-      
-      // Determine if this is a trait test based on dice count
-      const totalDiceCount = Object.values(counts).reduce((sum, count) => sum + count, 0);
-      const isTraitTest = totalDiceCount === 1;
       
       // Find wild die ID if present
       let wildDieId: string | undefined;
@@ -146,7 +148,7 @@ function DicePickedControls() {
         bonus: 0,  // Legacy field
         diceById: rolledDiceById,
         // Savage Worlds data
-        isTraitTest,
+        rollMode,
         traitModifier,
         damageModifier,
         targetNumber,
@@ -154,13 +156,13 @@ function DicePickedControls() {
         // finalResult will be added later when we can track roll completion
       });
 
-      handleReset();
+      handleReset(true);  // Preserve mode choice when resetting after roll
     }
     setRollPressTime(null);
   }
 
-  function handleReset() {
-    resetDiceCounts();
+  function handleReset(preserveMode?: boolean) {
+    resetDiceCounts(preserveMode);
     // Don't reset modifier - it's ephemeral but persists across rolls in a session
   }
 
@@ -194,11 +196,66 @@ function DicePickedControls() {
       ),
     [counts, defaultDiceCounts]
   );
-
-  const theme = useTheme();
+  
+  // Determine if dice are currently rolling
+  const pendingDice = useDiceRollStore((state) => state.pendingDice);
+  const isRolling = pendingDice.length > 0;
 
   return (
     <>
+      {/* Control panel with ModeSelector and Roll button */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          pointerEvents: "none",
+        }}
+      >
+        <Stack
+          direction="column"
+          spacing={3}
+          alignItems="center"
+          sx={{ pointerEvents: "auto" }}
+        >
+          <ModeSelector
+            autoMode={rollMode}
+            currentMode={modeChoice}
+            visible={hasDice && !isRolling}
+            disabled={isRolling}
+            onModeChange={(mode) => {
+              setModeChoice(mode);
+            }}
+          />
+          
+          {hasDice && !isRolling && (
+            <Button
+              variant="contained"
+              endIcon={<RollIcon />}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handleRoll}
+              sx={{
+                borderRadius: "20px",
+                px: 3,
+                ":active": {
+                  animation: `${jiggle} 0.3s infinite`,
+                },
+              }}
+              id="dice-roll-button"
+            >
+              Roll
+            </Button>
+          )}
+        </Stack>
+      </div>
+
+      {/* Optional invisible overlay for tap-anywhere rolling */}
       <ButtonBase
         sx={{
           position: "absolute",
@@ -213,75 +270,14 @@ function DicePickedControls() {
           ":focus": {
             outline: 0,
           },
-          ":hover #dice-roll-button": hasDice
-            ? {
-                color: theme.palette.primary.contrastText,
-                width: "100px",
-                "& span": {
-                  transform: "translateX(0)",
-                },
-                backgroundColor: theme.palette.primary.main,
-              }
-            : {},
-          ":active #dice-roll-button": hasDice
-            ? {
-                backgroundColor: theme.palette.primary.dark,
-              }
-            : {},
         }}
         onPointerDown={handlePointerDown}
         onPointerUp={handleRoll}
-        aria-label="roll"
+        aria-label="roll dice"
         disabled={!hasDice}
-      >
-        <Box
-          component="div"
-          sx={{
-            ":active": {
-              animation: `${jiggle} 0.3s infinite`,
-            },
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
-          fontSize="54px"
-        >
-          <Button
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              color: hasDice ? "transparent" : "transparent !important",
-              "& span": {
-                transform: "translate(-23px)",
-                color: theme.palette.primary.contrastText,
-                transition: theme.transitions.create("transform"),
-              },
-              transition: theme.transitions.create([
-                "width",
-                "color",
-                "background-color",
-              ]),
-              minWidth: 0,
-              width: "36px",
-              overflow: "hidden",
-              borderRadius: "20px",
-            }}
-            endIcon={<RollIcon />}
-            variant="contained"
-            disabled={!hasDice}
-            id="dice-roll-button"
-            // @ts-ignore
-            component="div"
-          >
-            Roll
-          </Button>
-        </Box>
-      </ButtonBase>
-      <GradientOverlay top />
+      />
+
+      {/* Clear button */}
       <Stack
         sx={{
           position: "absolute",
@@ -292,7 +288,7 @@ function DicePickedControls() {
       >
         <Tooltip title="Clear" disableInteractive>
           <IconButton
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               handleReset();
             }}
@@ -301,7 +297,6 @@ function DicePickedControls() {
           </IconButton>
         </Tooltip>
       </Stack>
-      {/* Modifier display removed - now shown in SavageWorldsResults */}
     </>
   );
 }

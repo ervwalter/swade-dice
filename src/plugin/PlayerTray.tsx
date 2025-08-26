@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Player } from "@owlbear-rodeo/sdk";
 import {
   ContactShadows,
   Environment,
@@ -6,27 +6,26 @@ import {
   PerspectiveCamera,
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Player } from "@owlbear-rodeo/sdk";
+import { useState } from "react";
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Fade from "@mui/material/Fade";
 import Backdrop from "@mui/material/Backdrop";
+import Box from "@mui/material/Box";
+import Fade from "@mui/material/Fade";
 import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
-import environment from "../environment.hdr";
-import { GradientOverlay } from "../controls/GradientOverlay";
+import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { SavageWorldsResults } from "../controls/SavageWorldsResults";
 import { SavageWorldsResultsSummary } from "../controls/SavageWorldsResultsSummary";
-import { useRemotePlayerResults } from "../hooks/useRemotePlayerResults";
-import { usePlayerDice } from "./usePlayerDice";
-import { PlayerDiceRoll } from "./PlayerDiceRoll";
-import { AudioListenerProvider } from "../audio/AudioListenerProvider";
-import { Tray } from "../tray/Tray";
 import { useDebugStore } from "../debug/store";
+import environment from "../environment.hdr";
+import { useRemotePlayerResults } from "../hooks/useRemotePlayerResults";
+import { Tray } from "../tray/Tray";
 import { TraySuspense } from "../tray/TraySuspense";
+import { PlayerDiceRoll } from "./PlayerDiceRoll";
+import { usePlayerDice } from "./usePlayerDice";
 
 export function PlayerTray({
   player,
@@ -98,47 +97,17 @@ export function PlayerTray({
 function PlayerTrayResults({ player }: { player?: Player }) {
   const { 
     diceRoll, 
-    explosionResults,
-    rollValues,
-    dieInfo,
-    controlSettings,
+    currentRollResult,
     finishedRolling 
   } = usePlayerDice(player);
 
-  const [resultsExpanded, setResultsExpanded] = useState(false);
   
-  const {
-    mainChains,
-    wildChains,
-    isTraitTest,
-    modifier,
-    mainTotal,
-    finalResult,
-    success,
-    raises,
-    targetNumber,
-    hasResults
-  } = useRemotePlayerResults(
-    explosionResults,
-    rollValues,
-    dieInfo,
-    controlSettings,
+  const result = useRemotePlayerResults(
+    currentRollResult,
     finishedRolling
   );
   
-  const resultsData = {
-    mainChains,
-    wildChains,
-    isTraitTest,
-    modifier,
-    mainTotal,
-    finalResult,
-    isComplete: finishedRolling,
-    success,
-    raises,
-    targetNumber,
-    hasResults,
-  };
+  const hasResults = result && result.dieChains && result.dieChains.length > 0;
 
   return (
     <>
@@ -151,10 +120,10 @@ function PlayerTrayResults({ player }: { player?: Player }) {
       )}
       {hasResults && finishedRolling && (
         <>
-          <Fade in>
+          {/* <Fade in>
             <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
           </Fade>
-          <GradientOverlay />
+          <GradientOverlay /> */}
           {/* Main summary at the top with background */}
           <Fade in>
             <div>
@@ -173,7 +142,7 @@ function PlayerTrayResults({ player }: { player?: Player }) {
                 component="div"
               >
                 <SavageWorldsResultsSummary
-                  results={resultsData}
+                  result={result}
                   hidden={diceRoll?.hidden}
                 />
               </Box>
@@ -191,7 +160,7 @@ function PlayerTrayResults({ player }: { player?: Player }) {
                 display="flex"
                 justifyContent="center"
               >
-                <SavageWorldsResults results={resultsData} />
+                <SavageWorldsResults result={result} />
               </Box>
             </div>
           </Fade>

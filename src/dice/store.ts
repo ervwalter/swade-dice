@@ -10,7 +10,7 @@ import { SeededRandom, deriveDieSeed, deriveExplosionSeed } from "../helpers/See
 import { generateDiceId } from "../helpers/generateDiceId";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceType } from "../types/DiceType";
-import { ExplosionResult, SavageRollMode, SavageRollResult } from "../types/SavageWorldsTypes";
+import { ExplosionResult, SavageRollMode, SavageRollResult, DieChain, RollOutcome } from "../types/SavageWorldsTypes";
 import { shouldDieExplode, MAX_EXPLOSIONS } from "../helpers/explosionHelpers";
 import { DEFAULT_DICE_STYLE, EXPLOSION_SPEED_MULTIPLIER } from "../constants/savageWorlds";
 import { useDiceControlsStore } from "../controls/store";
@@ -95,6 +95,10 @@ export const useDiceRollStore = create<DiceRollState>()(
     
     startRoll: (roll, speedMultiplier?: number) =>
       set((state) => {
+        // Get the current roll mode from controls store
+        const controlsState = useDiceControlsStore.getState();
+        state.rollMode = controlsState.rollMode;
+        
         // Generate a new master seed for this roll
         const seed = Date.now() + Math.floor(Math.random() * 1000000);
         state.masterSeed = seed;
@@ -327,47 +331,135 @@ export const useDiceRollStore = create<DiceRollState>()(
       set((state) => {
         const explosions = Object.values(state.explosionResults);
         
-        let total = 0;
-        let traitDieResult: ExplosionResult | undefined;
-        let wildDieResult: ExplosionResult | undefined;
-        let bestResult: ExplosionResult | undefined;
+        // Convert explosion results to die chains
+        const dieChains: DieChain[] = explosions.map(exp => ({
+          dieId: exp.dieId,
+          dieType: exp.dieType,
+          rolls: exp.rolls,
+          total: exp.total,
+          isWildDie: exp.isWildDie,
+        }));
+        
+        // Build outcomes based on mode
+        let outcomes: RollOutcome[] = [];
         
         if (state.rollMode === "TRAIT") {
-          traitDieResult = explosions.find((e) => !e.isWildDie);
-          wildDieResult = explosions.find((e) => e.isWildDie);
+          const regularChains = dieChains.filter(c => !c.isWildDie);
+          const wildChain = dieChains.find(c => c.isWildDie);
           
-          if (traitDieResult && wildDieResult) {
-            bestResult = traitDieResult.total >= wildDieResult.total ? traitDieResult : wildDieResult;
-          } else {
-            bestResult = traitDieResult || wildDieResult;
+          if (regularChains.length === 1) {
+            // Single die trait test - compare with wild die
+            const traitChain = regularChains[0];
+            let bestChain = traitChain;
+            let replacedByWild = false;
+            
+            if (wildChain && wildChain.total > traitChain.total) {
+              bestChain = wildChain;
+              replacedByWild = true;
+            }
+            
+            const total = bestChain.total + modifier;
+            const outcome: RollOutcome = {
+              chains: [bestChain],
+              modifier,
+              total,
+              replacedByWild,
+            };
+            
+            if (targetNumber !== undefined) {
+              outcome.success = total >= targetNumber;
+              if (outcome.success) {
+                outcome.raises = Math.floor((total - targetNumber) / 4);
+              }
+            }
+            
+            outcomes = [outcome];
+            
+          } else if (regularChains.length > 1) {
+            // Multi-die trait test - each die is tested independently
+            let results = regularChains.map(chain => {
+              const total = chain.total + modifier;
+              const outcome: RollOutcome = {
+                chains: [chain],
+                modifier,
+                total,
+                replacedByWild: false,
+              };
+              
+              if (targetNumber !== undefined) {
+                outcome.success = total >= targetNumber;
+                if (outcome.success) {
+                  outcome.raises = Math.floor((total - targetNumber) / 4);
+                }
+              }
+              
+              return outcome;
+            });
+            
+            // If there's a wild die, it can replace the worst result
+            if (wildChain && results.length > 0) {
+              // Find the worst result (lowest total)
+              let worstIndex = 0;
+              let worstTotal = results[0].total;
+              
+              for (let i = 1; i < results.length; i++) {
+                if (results[i].total < worstTotal) {
+                  worstIndex = i;
+                  worstTotal = results[i].total;
+                }
+              }
+              
+              // Check if wild die would be better
+              const wildTotal = wildChain.total + modifier;
+              if (wildTotal > worstTotal) {
+                // Replace worst result with wild die result
+                const wildOutcome: RollOutcome = {
+                  chains: [wildChain],
+                  modifier,
+                  total: wildTotal,
+                  replacedByWild: true,
+                };
+                
+                if (targetNumber !== undefined) {
+                  wildOutcome.success = wildTotal >= targetNumber;
+                  if (wildOutcome.success) {
+                    wildOutcome.raises = Math.floor((wildTotal - targetNumber) / 4);
+                  }
+                }
+                
+                results[worstIndex] = wildOutcome;
+              }
+            }
+            
+            outcomes = results;
           }
-          
-          total = (bestResult?.total || 0) + modifier;
         } else {
-          total = explosions.reduce((sum, e) => sum + e.total, 0) + modifier;
-        }
-        
-        let success: boolean | undefined;
-        let raises: number | undefined;
-        
-        if (targetNumber !== undefined) {
-          success = total >= targetNumber;
-          if (success) {
-            raises = Math.floor((total - targetNumber) / 4);
+          // Damage mode - sum all dice
+          const total = dieChains.reduce((sum, chain) => sum + chain.total, 0) + modifier;
+          const outcome: RollOutcome = {
+            chains: dieChains,
+            modifier,
+            total,
+            replacedByWild: false,
+          };
+          
+          if (targetNumber !== undefined) {
+            outcome.success = total >= targetNumber;
+            if (outcome.success) {
+              outcome.raises = Math.floor((total - targetNumber) / 4);
+            }
           }
+          
+          outcomes = [outcome];
         }
         
         state.currentRollResult = {
           mode: state.rollMode,
-          explosions,
-          traitDieResult,
-          wildDieResult,
-          bestResult,
-          modifier,
-          total,
+          dieChains,
+          outcomes,
           targetNumber,
-          success,
-          raises,
+          modifier,
+          isComplete: true,  // finalizeRoll is only called when all dice are complete
           timestamp: Date.now(),
         };
       });

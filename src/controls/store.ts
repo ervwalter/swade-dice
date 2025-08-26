@@ -7,6 +7,7 @@ import { Die } from "../types/Die";
 import { generateDiceId } from "../helpers/generateDiceId";
 
 export type DiceCounts = Record<string, number>;
+export type RollModeSelection = 'AUTO' | 'TRAIT' | 'DAMAGE';
 
 interface DiceControlsState {
   diceSet: DiceSet;
@@ -21,12 +22,14 @@ interface DiceControlsState {
   targetNumber: number;
   traitModifier: number;   // Modifier for trait tests
   damageModifier: number;  // Modifier for damage rolls
+  modeChoice: RollModeSelection;  // User's mode selection (AUTO, TRAIT, or DAMAGE)
+  rollMode: 'TRAIT' | 'DAMAGE';  // The actual current mode
   // Results display state
   resultsDetailsPinned: boolean;
   resultsDetailsHovered: boolean;
   // Actions
   changeDiceSet: (diceSet: DiceSet) => void;
-  resetDiceCounts: () => void;
+  resetDiceCounts: (preserveMode?: boolean) => void;
   changeDieCount: (id: string, count: number) => void;
   incrementDieCount: (id: string) => void;
   decrementDieCount: (id: string) => void;
@@ -38,6 +41,7 @@ interface DiceControlsState {
   // Savage Worlds specific actions
   toggleWildDie: () => void;
   setTargetNumber: (tn: number) => void;
+  setModeChoice: (mode: RollModeSelection) => void;
   // Results display actions
   setResultsDetailsPinned: (pinned: boolean) => void;
   setResultsDetailsHovered: (hovered: boolean) => void;
@@ -68,6 +72,17 @@ const initialSet = loadDiceSet();
 const initialDiceCounts = getDiceCountsFromSet(initialSet);
 const initialDiceById = getDiceByIdFromSet(initialSet);
 
+// Helper to compute actual roll mode
+function computeRollMode(modeChoice: RollModeSelection, counts: DiceCounts): 'TRAIT' | 'DAMAGE' {
+  // If explicitly chosen, always use that mode regardless of dice count
+  if (modeChoice === 'TRAIT') return 'TRAIT';
+  if (modeChoice === 'DAMAGE') return 'DAMAGE';
+  
+  // Auto mode: determine based on dice count
+  const totalCount = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  return totalCount === 1 ? 'TRAIT' : 'DAMAGE';
+}
+
 // Load Savage Worlds settings from localStorage
 const loadSavageWorldsSettings = () => {
   try {
@@ -96,7 +111,7 @@ const loadResultsDetailsPinned = () => {
 };
 
 export const useDiceControlsStore = create<DiceControlsState>()(
-  immer((set) => ({
+  immer((set, get) => ({
     diceSet: initialSet,
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
@@ -108,6 +123,8 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     targetNumber: initialTN,
     traitModifier: 0,   // Always start at 0 - modifiers are ephemeral
     damageModifier: 0,  // Always start at 0 - modifiers are ephemeral
+    modeChoice: 'AUTO',   // Default to AUTO mode
+    rollMode: computeRollMode('AUTO', initialDiceCounts),  // Computed from modeChoice and counts
     resultsDetailsPinned: loadResultsDetailsPinned(),
     resultsDetailsHovered: false,
     changeDiceSet(diceSet) {
@@ -129,6 +146,8 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.diceSet = diceSet;
         state.defaultDiceCounts = getDiceCountsFromSet(diceSet);
         state.diceById = getDiceByIdFromSet(diceSet);
+        // Update rollMode based on new counts
+        state.rollMode = computeRollMode(state.modeChoice, counts);
       });
       
       // Save dice set selection to localStorage
@@ -138,15 +157,24 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         console.error('Failed to save dice set:', e);
       }
     },
-    resetDiceCounts() {
+    resetDiceCounts(preserveMode?: boolean) {
       set((state) => {
         state.diceCounts = state.defaultDiceCounts;
+        if (!preserveMode) {
+          // Reset to AUTO when not preserving
+          state.modeChoice = 'AUTO';
+          state.rollMode = computeRollMode('AUTO', state.defaultDiceCounts);
+        }
+        // When preserving mode, don't touch modeChoice or rollMode at all
+        // They stay exactly as they were
       });
     },
     changeDieCount(id, count) {
       set((state) => {
         if (id in state.diceCounts) {
           state.diceCounts[id] = count;
+          // Update rollMode based on new counts
+          state.rollMode = computeRollMode(state.modeChoice, state.diceCounts);
         }
       });
     },
@@ -154,13 +182,17 @@ export const useDiceControlsStore = create<DiceControlsState>()(
       set((state) => {
         if (id in state.diceCounts) {
           state.diceCounts[id] += 1;
+          // Update rollMode based on new counts
+          state.rollMode = computeRollMode(state.modeChoice, state.diceCounts);
         }
       });
     },
     decrementDieCount(id) {
       set((state) => {
-        if (id in state.diceCounts) {
+        if (id in state.diceCounts && state.diceCounts[id] > 0) {
           state.diceCounts[id] -= 1;
+          // Update rollMode based on new counts
+          state.rollMode = computeRollMode(state.modeChoice, state.diceCounts);
         }
       });
     },
@@ -223,6 +255,14 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.resultsDetailsHovered = hovered;
       });
     },
+    setModeChoice(mode) {
+      set((state) => {
+        state.modeChoice = mode;
+        // Update rollMode based on choice
+        state.rollMode = computeRollMode(mode, state.diceCounts);
+        // Don't persist - mode selection is ephemeral within a session
+      });
+    },
   }))
 );
 
@@ -247,16 +287,11 @@ export function getDiceToRoll(
   counts: DiceCounts,
   diceById: Record<string, Die>,
   wildDieEnabled?: boolean,
-  diceStyle?: string
+  diceStyle?: string,
+  isTraitMode?: boolean
 ) {
   const dice: (Die | Dice)[] = [];
   const countEntries = Object.entries(counts);
-  
-  // Calculate total dice count for mode detection
-  let totalCount = 0;
-  for (const [, count] of countEntries) {
-    totalCount += count;
-  }
   
   // Add regular dice
   for (const [id, count] of countEntries) {
@@ -270,8 +305,8 @@ export function getDiceToRoll(
     }
   }
   
-  // Add wild die if in trait test mode (1 die) and wild die is enabled
-  if (totalCount === 1 && wildDieEnabled) {
+  // Add wild die if in trait mode, wild die is enabled, AND there are regular dice
+  if (isTraitMode && wildDieEnabled && dice.length > 0) {
     // Wild die always uses Nebula style to distinguish it
     dice.push({ 
       id: generateDiceId(), 
