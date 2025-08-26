@@ -39,5 +39,8 @@ Owlbear Rodeo extension entry points:
 - `src/tests`: manual fairness tools (charts, tester button).
 - `src/sets`: dice set definitions.
 
+## Attributions
+d8 by Fritz Duggan from <a href="https://thenounproject.com/browse/icons/term/d8/" target="_blank" title="d8 Icons">Noun Project</a> (CC BY 3.0)
+
 ## License
 GNU GPLv3. See LICENSE for details.
