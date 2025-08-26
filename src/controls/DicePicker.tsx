@@ -52,7 +52,7 @@ export function DicePicker() {
                 handleDiceCountIncrease(id);
                 clearRollIfNeeded();
               }}
-              onContextMenu={(e) => {
+              onContextMenu={(e: React.MouseEvent) => {
                 e.preventDefault(); // Prevent browser context menu
                 handleDiceCountDecrease(id);
                 clearRollIfNeeded();

@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { Player } from '@owlbear-rodeo/sdk';
 import { PlayerRollResult } from '../types/SavageWorldsTypes';
 
