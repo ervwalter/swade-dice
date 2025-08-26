@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import { InteractiveTray } from "./tray/InteractiveTray";
 import { Sidebar } from "./controls/Sidebar";
 import { TopControls } from "./controls/TopControls";
-import { BottomControls } from "./controls/BottomControls";
 import { PluginGate } from "./plugin/PluginGate";
 import { DiceRollSync } from "./plugin/DiceRollSync";
 
@@ -22,8 +21,6 @@ export function App() {
           <InteractiveTray />
         </Box>
         
-        {/* Bottom row with player avatars */}
-        {/* <BottomControls /> */}
         <PluginGate>
                   <DiceRollSync />
         </PluginGate>

@@ -21,7 +21,6 @@ import { useDiceRollStore } from "../dice/store";
 import { Die } from "../types/Die";
 import Backdrop from "@mui/material/Backdrop";
 import Slide from "@mui/material/Slide";
-import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 
 const FairnessCharts = lazy(() => import("./FairnessCharts"));
 
@@ -31,7 +30,6 @@ const marks = [
   },
   {
     value: 100,
-    label: "100",
   },
   {
     value: 500,
@@ -39,11 +37,14 @@ const marks = [
   },
   {
     value: 1000,
-    label: "1000",
   },
   {
     value: 2000,
-    label: "2000",
+    label: "2K",
+  },
+  {
+    value: 5000,
+    label: "5K",
   },
 ];
 
@@ -61,6 +62,7 @@ export function FairnessTester() {
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
   );
+  const setModeChoice = useDiceControlsStore((state) => state.setModeChoice);
 
   const singleDiceSelected = useMemo(() => {
     const totalCount = Object.values(counts).reduce(
@@ -89,9 +91,12 @@ export function FairnessTester() {
       const rollingDie = diceById[rolling[0]];
       if (rollingDie) {
         setRolledDie(rollingDie);
+        console.log('🎯 FAIRNESS: Setting mode to STANDARD');
+        setModeChoice('STANDARD');  // Set to STANDARD mode for fairness testing
         // Don't include wild die for fairness testing - test individual dice only
         const dice = getDiceToRoll(counts, diceById, false);
-        startRoll({ dice, bonus: 0, hidden: true });
+        console.log('🎯 FAIRNESS: Starting roll with dice:', dice);
+        startRoll({ dice, hidden: true });
         setActive(true);
         handleCountsReset();
       }
@@ -119,11 +124,11 @@ export function FairnessTester() {
     if (active) {
       return useDiceRollStore.subscribe((state) => {
         const roll = state.roll;
-        if (roll && Object.values(state.rollValues).every((v) => v !== null)) {
-          const value = getCombinedDiceValue(
-            roll,
-            state.rollValues as Record<string, number>
-          );
+        if (roll && state.currentRollResult && state.currentRollResult.isComplete) {
+          // For fairness testing, just use the sum of all individual die values
+          const values = Object.values(state.rollValues as Record<string, number>);
+          const value = values.reduce((sum, val) => sum + val, 0);
+          
           if (value) {
             setRolledValues((prev) => [...prev, value]);
           }
@@ -239,7 +244,7 @@ export function FairnessTester() {
                   value={numberRolls}
                   onChange={(_, v) => !Array.isArray(v) && setNumberRolls(v)}
                   min={0}
-                  max={2000}
+                  max={5000}
                   defaultValue={500}
                   step={null}
                   valueLabelDisplay="auto"
@@ -254,10 +259,10 @@ export function FairnessTester() {
                   sx={{ my: 1, borderRadius: 2 }}
                   id="testing-progress"
                   variant="determinate"
-                  value={((rolledValues.length + 1) / numberRolls) * 100}
+                  value={(rolledValues.length / numberRolls) * 100}
                 />
                 <FormLabel htmlFor="testing-progress">
-                  {rolledValues.length + 1} of {numberRolls} Rolls
+                  {rolledValues.length} of {numberRolls} Rolls
                 </FormLabel>
               </Stack>
             )}

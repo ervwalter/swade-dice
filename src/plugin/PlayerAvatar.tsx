@@ -24,7 +24,7 @@ export function PlayerAvatar({
   return (
     <PlayerRollPill
       player={player}
-      result={result}
+      result={result || undefined}
       onClick={onSelect}
       showTimestamp={false}
     />

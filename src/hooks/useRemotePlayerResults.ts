@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { SavageRollResult } from "../types/SavageWorldsTypes";
+import { SavageRollResult, PlayerRollResult } from "../types/SavageWorldsTypes";
 
 /**
  * Hook to reconstruct a SavageRollResult from remote player metadata
  */
 export function useRemotePlayerResults(
-  currentRollResult: any,
+  currentRollResult: PlayerRollResult | null,
   finishedRolling: boolean
 ): SavageRollResult | null {
   

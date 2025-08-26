@@ -33,6 +33,10 @@ export default function FairnessCharts({
         return 10;
       case "D12":
         return 12;
+      case "D20":
+        return 20;
+      case "D100":
+        return 100;
       default:
         throw Error("Unable to find die count for type" + die.type);
     }
@@ -71,6 +75,10 @@ export default function FairnessCharts({
         return 18.307;
       case "D12":
         return 21.026;
+      case "D20":
+        return 31.41;
+      case "D100":
+        return 124.342;
       default:
         throw Error("Unable to find critical value for type" + die.type);
     }

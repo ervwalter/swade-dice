@@ -124,7 +124,6 @@ function DicePickedControls() {
       // Build roll with Savage Worlds config
       startRoll({ 
         dice, 
-        bonus: 0, 
         hidden,
         savageWorldsConfig: {
           rollType: isTraitTest ? "trait" : "damage",
@@ -141,19 +140,14 @@ function DicePickedControls() {
         }
       }
       
-      // Note: We can't calculate the final result here since the dice haven't rolled yet
-      // The finalResult will be undefined until we implement a way to update it after rolling
       pushRecentRoll({ 
         counts, 
-        bonus: 0,  // Legacy field
         diceById: rolledDiceById,
-        // Savage Worlds data
         rollMode,
         traitModifier,
         damageModifier,
         targetNumber,
         wildDieEnabled,
-        // finalResult will be added later when we can track roll completion
       });
 
       handleReset(true);  // Preserve mode choice when resetting after roll

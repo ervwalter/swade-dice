@@ -5,10 +5,9 @@ import { Die } from "../types/Die";
 
 export interface RecentRoll {
   counts: DiceCounts;
-  bonus: number;  // Legacy field, kept for compatibility
   diceById: Record<string, Die>;
   // Savage Worlds specific data
-  rollMode: 'TRAIT' | 'DAMAGE';
+  rollMode: 'TRAIT' | 'DAMAGE' | 'STANDARD';
   traitModifier?: number;
   damageModifier?: number;
   targetNumber?: number;

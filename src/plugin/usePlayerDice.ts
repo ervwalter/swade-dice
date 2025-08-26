@@ -1,6 +1,5 @@
 import { Player } from "@owlbear-rodeo/sdk";
 import { useEffect, useMemo, useRef } from "react";
-import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 import { DiceRoll } from "../types/DiceRoll";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
@@ -36,20 +35,8 @@ export function usePlayerDice(player?: Player) {
       | undefined;
   }, [player]);
   
-  const explosionResults = useMemo(() => {
-    return player?.metadata[getPluginId("explosionResults")] as any;
-  }, [player]);
-  
-  const dieInfo = useMemo(() => {
-    return player?.metadata[getPluginId("dieInfo")] as any;
-  }, [player]);
-  
   const currentRollResult = useMemo(() => {
     return player?.metadata[getPluginId("currentRollResult")] as any;
-  }, [player]);
-  
-  const controlSettings = useMemo(() => {
-    return player?.metadata[getPluginId("controlSettings")] as any;
   }, [player]);
 
   const finishedRollTransforms = useMemo(() => {
@@ -72,26 +59,7 @@ export function usePlayerDice(player?: Player) {
     transformsRef.current = rollTransforms || null;
   }, [rollTransforms]);
 
-  const finishedRollValues = useMemo(() => {
-    if (!rollValues) {
-      return undefined;
-    }
-    const values: Record<string, number> = {};
-    for (const [id, value] of Object.entries(rollValues)) {
-      if (value !== null) {
-        values[id] = value;
-      }
-    }
-    return values;
-  }, [rollValues]);
 
-  const finalValue = useMemo(() => {
-    if (diceRoll && finishedRollValues) {
-      return getCombinedDiceValue(diceRoll, finishedRollValues);
-    } else {
-      return null;
-    }
-  }, [diceRoll, finishedRollValues]);
 
   const finishedRolling = useMemo(() => {
     if (!rollValues) {
@@ -108,16 +76,11 @@ export function usePlayerDice(player?: Player) {
   return {
     diceRoll,
     rollThrows,
-    rollValues,
     rollTransforms,
     transformsRef,
     finishedRollTransforms,
-    finishedRollValues,
     finishedRolling,
     explosionDice,
-    explosionResults,
-    dieInfo,
     currentRollResult,
-    controlSettings,
   };
 }

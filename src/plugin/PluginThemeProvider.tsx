@@ -85,7 +85,12 @@ export function PluginThemeProvider({
       const updateTheme = (theme: Theme) => {
         setTheme(getTheme(theme));
       };
-      OBR.theme.getTheme().then(updateTheme);
+      OBR.theme.getTheme()
+        .then(updateTheme)
+        .catch((error) => {
+          console.warn('Failed to get OBR theme:', error);
+          // Continue with default theme on error
+        });
       return OBR.theme.onChange(updateTheme);
     }
   }, [ready]);

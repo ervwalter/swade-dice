@@ -5,7 +5,7 @@ import { useTheme } from "@mui/material/styles";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
-import { SavageRollResult } from "../types/SavageWorldsTypes";
+import { SavageRollResult, RollOutcome } from "../types/SavageWorldsTypes";
 
 interface SavageWorldsResultsSummaryProps {
   result: SavageRollResult | null;
@@ -47,7 +47,7 @@ export function SavageWorldsResultsSummary({
   const warningColor = isDarkBackground ? "#ffc107" : "#f57c00";  // Darker amber for light backgrounds
   
   // Generate dice prefix for each outcome
-  const getDicePrefix = (outcome: any, index: number) => {
+  const getDicePrefix = (outcome: RollOutcome, index: number) => {
     if (!showDicePrefix) return "";
     
     if (isTraitTest) {

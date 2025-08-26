@@ -6,21 +6,26 @@ import { Die } from "../types/Die";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { DiceTransform } from "../types/DiceTransform";
 import { getRandomDiceThrow } from "../helpers/DiceThrower";
-import { SeededRandom, deriveDieSeed, deriveExplosionSeed } from "../helpers/SeededRandom";
 import { generateDiceId } from "../helpers/generateDiceId";
 import { DiceThrow } from "../types/DiceThrow";
-import { DiceType } from "../types/DiceType";
 import { ExplosionResult, SavageRollMode, SavageRollResult, DieChain, RollOutcome } from "../types/SavageWorldsTypes";
 import { shouldDieExplode, MAX_EXPLOSIONS } from "../helpers/explosionHelpers";
-import { DEFAULT_DICE_STYLE, EXPLOSION_SPEED_MULTIPLIER } from "../constants/savageWorlds";
 import { useDiceControlsStore } from "../controls/store";
+import { 
+  updateExplosionResults,
+  createExplosionDie,
+  getParentDieId,
+  getRootDieId,
+  processSingleDieTraitTest,
+  processMultiDieTraitTest,
+  processDamageRoll
+} from "./storeHelpers";
 
 interface DiceRollState {
   roll: DiceRoll | null;
   /**
    * Master seed for the current roll (for deterministic randomness)
    */
-  masterSeed: number | null;
   /**
    * Mapping from die ID to its index in the original dice array
    * Used for deterministic seed derivation
@@ -73,12 +78,20 @@ interface DiceRollState {
   setRollMode: (mode: SavageRollMode) => void;
   checkAndProcessExplosion: (id: string, value: number, transform: DiceTransform) => void;
   finalizeRoll: (modifier?: number, targetNumber?: number) => void;
+  
+  // Helper methods for explosion processing
+  storeRollResult: (id: string, value: number, transform: DiceTransform) => void;
+  updateExplosionResult: (parentDieId: string, value: number, info: any) => void;
+  canCreateExplosion: (parentDieId: string) => boolean;
+  createExplosion: (parentDieId: string, info: any) => void;
+  completeRoll: () => void;
+  createDieChains: () => any[];
+  calculateOutcomes: (dieChains: any[], modifier: number, targetNumber: number | undefined, rollMode: SavageRollMode) => any[];
 }
 
 export const useDiceRollStore = create<DiceRollState>()(
   immer((set, get) => ({
     roll: null,
-    masterSeed: null,
     dieIndices: {},
     rollValues: {},
     rollTransforms: {},
@@ -99,15 +112,7 @@ export const useDiceRollStore = create<DiceRollState>()(
         const controlsState = useDiceControlsStore.getState();
         state.rollMode = controlsState.rollMode;
         
-        // Generate a new master seed for this roll
-        const seed = Date.now() + Math.floor(Math.random() * 1000000);
-        state.masterSeed = seed;
-        
-        // Add master seed to the roll object
-        state.roll = {
-          ...roll,
-          masterSeed: seed
-        };
+        state.roll = roll;
         state.rollValues = {};
         state.rollTransforms = {};
         state.rollThrows = {};
@@ -122,16 +127,12 @@ export const useDiceRollStore = create<DiceRollState>()(
         // Set all values to null and mark as pending
         const dice = getDieFromDice(roll);
         dice.forEach((die, index) => {
-          // Store the die's index for deterministic seed derivation
+          // Store the die's index
           state.dieIndices[die.id] = index;
-          
-          // Create a SeededRandom instance for this specific die
-          const dieSeed = deriveDieSeed(seed, index);
-          const dieRng = new SeededRandom(dieSeed);
           
           state.rollValues[die.id] = null;
           state.rollTransforms[die.id] = null;
-          state.rollThrows[die.id] = getRandomDiceThrow(speedMultiplier, dieRng);
+          state.rollThrows[die.id] = getRandomDiceThrow(speedMultiplier);
           state.pendingDice.push(die.id);
           
           // Mark wild die (D6 with Nebula style)
@@ -142,7 +143,6 @@ export const useDiceRollStore = create<DiceRollState>()(
     clearRoll: () =>
       set((state) => {
         state.roll = null;
-        state.masterSeed = null;
         state.dieIndices = {};
         state.rollValues = {};
         state.rollTransforms = {};
@@ -167,36 +167,27 @@ export const useDiceRollStore = create<DiceRollState>()(
       // Then set up the reroll with a small delay to ensure the clear has propagated
       setTimeout(() => {
         set((state) => {
-          // Generate a new master seed for the reroll
-          const seed = Date.now() + Math.floor(Math.random() * 1000000);
-          state.masterSeed = seed;
-          
           // Generate new IDs for all dice in the roll
           const newDice = getDieFromDice(rollToReplay).map(die => ({
             ...die,
             id: generateDiceId()
           }));
           
-          // Create a new roll with the new dice IDs and seed
+          // Create a new roll with the new dice IDs
           const newRoll: DiceRoll = {
             ...rollToReplay,
-            dice: newDice,
-            masterSeed: seed
+            dice: newDice
           };
           
           // Set up the new roll exactly like startRoll does
           state.roll = newRoll;
           newDice.forEach((die, index) => {
-            // Store the die's index for deterministic seed derivation
+            // Store the die's index
             state.dieIndices[die.id] = index;
-            
-            // Create a SeededRandom instance for this specific die
-            const dieSeed = deriveDieSeed(seed, index);
-            const dieRng = new SeededRandom(dieSeed);
             
             state.rollValues[die.id] = null;
             state.rollTransforms[die.id] = null;
-            state.rollThrows[die.id] = getRandomDiceThrow(undefined, dieRng);
+            state.rollThrows[die.id] = getRandomDiceThrow();
             state.pendingDice.push(die.id);
             
             // Mark wild die (D6 with Nebula style)
@@ -225,7 +216,25 @@ export const useDiceRollStore = create<DiceRollState>()(
       
       if (!info) return;
       
-      // Store the result first
+      // Store the result and update pending/finished dice
+      const parentDieId = getParentDieId(id);
+      get().storeRollResult(id, value, transform);
+      get().updateExplosionResult(parentDieId, value, info);
+      
+      // Handle explosion if needed
+      const shouldExplode = shouldDieExplode(value, info.die.type);
+      if (shouldExplode && get().canCreateExplosion(parentDieId) && get().rollMode !== "STANDARD") {
+        get().createExplosion(parentDieId, info);
+        return; // Don't check for completion when spawning explosion
+      }
+      
+      // Check for roll completion
+      if (get().pendingDice.length === 0) {
+        get().completeRoll();
+      }
+    },
+    
+    storeRollResult: (id, value, transform) => {
       set((draft) => {
         draft.rollValues[id] = value;
         draft.rollTransforms[id] = transform;
@@ -240,218 +249,57 @@ export const useDiceRollStore = create<DiceRollState>()(
           draft.finishedDice.push(id);
         }
       });
-      
-      // Determine the parent die ID for explosion tracking
-      let parentDieId = id;
-      if (id.includes('_explosion_')) {
-        parentDieId = id.split('_explosion_')[0];
-      }
-      
-      // Initialize or update explosion result
+    },
+    
+    updateExplosionResult: (parentDieId, value, info) => {
       set((draft) => {
-        if (!draft.explosionResults[parentDieId]) {
-          draft.explosionResults[parentDieId] = {
-            dieId: parentDieId,
-            dieType: info.die.type,
-            rolls: [value],
-            total: value,
-            exploded: false,
-            isWildDie: info.isWildDie,
-          };
-        } else {
-          draft.explosionResults[parentDieId].rolls.push(value);
-          draft.explosionResults[parentDieId].total += value;
-        }
+        updateExplosionResults(draft.explosionResults, parentDieId, value, info.die.type, info.isWildDie);
       });
+    },
+    
+    canCreateExplosion: (parentDieId) => {
+      const explosionCount = (get().explosionResults[parentDieId]?.rolls.length || 1) - 1;
+      return explosionCount < MAX_EXPLOSIONS;
+    },
+    
+    createExplosion: (parentDieId, info) => {
+      const explosionCount = (get().explosionResults[parentDieId]?.rolls.length || 1) - 1;
+      const dieIndices = get().dieIndices;
+      const rootDieId = getRootDieId(parentDieId);
+      const dieIndex = dieIndices[rootDieId] ?? 0;
       
-      // Check if this die should explode
-      if (shouldDieExplode(value, info.die.type)) {
-        // Calculate explosion index - it's the number of rolls minus 1 (since we just added this roll)
-        const explosionCount = (get().explosionResults[parentDieId]?.rolls.length || 1) - 1;
+      const explosionData = createExplosionDie(parentDieId, explosionCount, info.die, dieIndex);
+      
+      set((draft) => {
+        draft.explosionResults[parentDieId].exploded = true;
         
-        if (explosionCount < MAX_EXPLOSIONS) {
-          // Mark as exploded and spawn new die
-          set((draft) => {
-            draft.explosionResults[parentDieId].exploded = true;
-            
-            const explosionId = `${parentDieId}_explosion_${explosionCount + 1}`;
-            const newDie: Die = {
-              id: explosionId,
-              type: info.die.type,
-              style: info.die.style || DEFAULT_DICE_STYLE
-            };
-            
-            // Add explosion die
-            draft.explosionDice.push(newDie);
-            draft.rollValues[explosionId] = null;
-            draft.rollTransforms[explosionId] = null;
-            
-            // Use derived seed for explosion determinism
-            const masterSeed = get().masterSeed || Date.now();
-            const dieIndices = get().dieIndices;
-            
-            // Get the original die's index (find the root die, not the explosion)
-            let rootDieId = parentDieId;
-            while (rootDieId.includes('_explosion_')) {
-              rootDieId = rootDieId.substring(0, rootDieId.lastIndexOf('_explosion_'));
-            }
-            const dieIndex = dieIndices[rootDieId] ?? 0;
-            
-            // Create explosion seed based on die index and explosion count
-            const explosionSeed = deriveExplosionSeed(masterSeed, dieIndex, explosionCount + 1);
-            const explosionRng = new SeededRandom(explosionSeed);
-            draft.rollThrows[explosionId] = getRandomDiceThrow(EXPLOSION_SPEED_MULTIPLIER, explosionRng);
-            
-            draft.pendingDice.push(explosionId);
-            draft.dieInfo[explosionId] = { 
-              die: newDie, 
-              isWildDie: info.isWildDie, 
-              parentDieId 
-            };
-          });
-          // Don't check for completion when we just spawned an explosion die
-          return;
-        }
-        // Hit max explosions, can check for completion
-      }
-      
-      // Only check if all dice are complete when we're not spawning explosions
-      // All dice are complete when pendingDice is empty
-      if (get().pendingDice.length === 0) {
-        // Get the actual modifiers and target number from controls store
-        const controlsState = useDiceControlsStore.getState();
-        const isTraitTest = get().rollMode === "TRAIT";
-        const modifier = isTraitTest ? controlsState.traitModifier : controlsState.damageModifier;
-        const targetNumber = controlsState.targetNumber;
-        get().finalizeRoll(modifier, targetNumber);
-      }
+        // Add explosion die and related data
+        draft.explosionDice.push(explosionData.die);
+        draft.rollValues[explosionData.die.id] = null;
+        draft.rollTransforms[explosionData.die.id] = null;
+        draft.rollThrows[explosionData.die.id] = explosionData.throw;
+        
+        draft.pendingDice.push(explosionData.die.id);
+        draft.dieInfo[explosionData.die.id] = { 
+          die: explosionData.die, 
+          isWildDie: info.isWildDie, 
+          parentDieId 
+        };
+      });
+    },
+    
+    completeRoll: () => {
+      const controlsState = useDiceControlsStore.getState();
+      const isTraitTest = get().rollMode === "TRAIT";
+      const modifier = isTraitTest ? controlsState.traitModifier : controlsState.damageModifier;
+      const targetNumber = controlsState.targetNumber;
+      get().finalizeRoll(modifier, targetNumber);
     },
     
     finalizeRoll: (modifier = 0, targetNumber) => {
       set((state) => {
-        const explosions = Object.values(state.explosionResults);
-        
-        // Convert explosion results to die chains
-        const dieChains: DieChain[] = explosions.map(exp => ({
-          dieId: exp.dieId,
-          dieType: exp.dieType,
-          rolls: exp.rolls,
-          total: exp.total,
-          isWildDie: exp.isWildDie,
-        }));
-        
-        // Build outcomes based on mode
-        let outcomes: RollOutcome[] = [];
-        
-        if (state.rollMode === "TRAIT") {
-          const regularChains = dieChains.filter(c => !c.isWildDie);
-          const wildChain = dieChains.find(c => c.isWildDie);
-          
-          if (regularChains.length === 1) {
-            // Single die trait test - compare with wild die
-            const traitChain = regularChains[0];
-            let bestChain = traitChain;
-            let replacedByWild = false;
-            
-            if (wildChain && wildChain.total > traitChain.total) {
-              bestChain = wildChain;
-              replacedByWild = true;
-            }
-            
-            const total = bestChain.total + modifier;
-            const outcome: RollOutcome = {
-              chains: [bestChain],
-              modifier,
-              total,
-              replacedByWild,
-            };
-            
-            if (targetNumber !== undefined) {
-              outcome.success = total >= targetNumber;
-              if (outcome.success) {
-                outcome.raises = Math.floor((total - targetNumber) / 4);
-              }
-            }
-            
-            outcomes = [outcome];
-            
-          } else if (regularChains.length > 1) {
-            // Multi-die trait test - each die is tested independently
-            let results = regularChains.map(chain => {
-              const total = chain.total + modifier;
-              const outcome: RollOutcome = {
-                chains: [chain],
-                modifier,
-                total,
-                replacedByWild: false,
-              };
-              
-              if (targetNumber !== undefined) {
-                outcome.success = total >= targetNumber;
-                if (outcome.success) {
-                  outcome.raises = Math.floor((total - targetNumber) / 4);
-                }
-              }
-              
-              return outcome;
-            });
-            
-            // If there's a wild die, it can replace the worst result
-            if (wildChain && results.length > 0) {
-              // Find the worst result (lowest total)
-              let worstIndex = 0;
-              let worstTotal = results[0].total;
-              
-              for (let i = 1; i < results.length; i++) {
-                if (results[i].total < worstTotal) {
-                  worstIndex = i;
-                  worstTotal = results[i].total;
-                }
-              }
-              
-              // Check if wild die would be better
-              const wildTotal = wildChain.total + modifier;
-              if (wildTotal > worstTotal) {
-                // Replace worst result with wild die result
-                const wildOutcome: RollOutcome = {
-                  chains: [wildChain],
-                  modifier,
-                  total: wildTotal,
-                  replacedByWild: true,
-                };
-                
-                if (targetNumber !== undefined) {
-                  wildOutcome.success = wildTotal >= targetNumber;
-                  if (wildOutcome.success) {
-                    wildOutcome.raises = Math.floor((wildTotal - targetNumber) / 4);
-                  }
-                }
-                
-                results[worstIndex] = wildOutcome;
-              }
-            }
-            
-            outcomes = results;
-          }
-        } else {
-          // Damage mode - sum all dice
-          const total = dieChains.reduce((sum, chain) => sum + chain.total, 0) + modifier;
-          const outcome: RollOutcome = {
-            chains: dieChains,
-            modifier,
-            total,
-            replacedByWild: false,
-          };
-          
-          if (targetNumber !== undefined) {
-            outcome.success = total >= targetNumber;
-            if (outcome.success) {
-              outcome.raises = Math.floor((total - targetNumber) / 4);
-            }
-          }
-          
-          outcomes = [outcome];
-        }
+        const dieChains = get().createDieChains();
+        const outcomes = get().calculateOutcomes(dieChains, modifier, targetNumber, state.rollMode);
         
         state.currentRollResult = {
           mode: state.rollMode,
@@ -459,10 +307,45 @@ export const useDiceRollStore = create<DiceRollState>()(
           outcomes,
           targetNumber,
           modifier,
-          isComplete: true,  // finalizeRoll is only called when all dice are complete
+          isComplete: true,
           timestamp: Date.now(),
         };
       });
+    },
+    
+    createDieChains: (): DieChain[] => {
+      const explosions = Object.values(get().explosionResults);
+      return explosions.map(exp => ({
+        dieId: exp.dieId,
+        dieType: exp.dieType,
+        rolls: exp.rolls,
+        total: exp.total,
+        isWildDie: exp.isWildDie,
+      }));
+    },
+    
+    calculateOutcomes: (dieChains, modifier, targetNumber, rollMode): RollOutcome[] => {
+      const regularChains = dieChains.filter(c => !c.isWildDie);
+      const wildChain = dieChains.find(c => c.isWildDie);
+      
+      if (rollMode === "TRAIT") {
+        if (regularChains.length === 1) {
+          return processSingleDieTraitTest(regularChains, wildChain, modifier, targetNumber);
+        } else if (regularChains.length > 1) {
+          return processMultiDieTraitTest(regularChains, wildChain, modifier, targetNumber);
+        }
+        return [];
+      } else if (rollMode === "STANDARD") {
+        // For standard mode, just return raw die values without any SWADE logic
+        return dieChains.map(chain => ({
+          chains: [chain],
+          modifier: 0,
+          total: chain.total,
+          replacedByWild: false
+        }));
+      } else {
+        return processDamageRoll(dieChains, modifier, targetNumber);
+      }
     },
   }))
 );

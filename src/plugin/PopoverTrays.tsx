@@ -5,17 +5,7 @@ import Box from "@mui/material/Box";
 
 import { PopoverTray } from "./PopoverTray";
 import { getPluginId } from "./getPluginId";
-
-interface RollHistoryEntry {
-  id: string;
-  playerId: string;
-  player: Player;
-  result: any;
-  timestamp: number;
-  addedAt: number;
-  isFading?: boolean;
-  isHidden?: boolean;
-}
+import { RollHistoryEntry } from "../types/SavageWorldsTypes";
 
 export function PopoverTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -41,7 +31,6 @@ export function PopoverTrays() {
           metadata: {}
         } as Player);
       } catch (error) {
-        console.error('Failed to get current player info:', error);
       }
     };
     
@@ -49,49 +38,32 @@ export function PopoverTrays() {
   }, []);
 
   useEffect(() => {
-    OBR.party.getPlayers().then(players => {
-      console.log('PopoverTrays: initial party players', {
-        count: players.length,
-        players: players.map(p => ({ 
-          name: p.name, 
-          id: p.connectionId, 
-          hasCurrentRollResult: !!p.metadata[getPluginId("currentRollResult")]
-        }))
+    OBR.party.getPlayers()
+      .then(players => {
+        setPlayers(players);
+      })
+      .catch(error => {
+        console.warn('Failed to get party players:', error);
+        setPlayers([]);
       });
-      setPlayers(players);
-    });
   }, []);
   useEffect(() => OBR.party.onChange((players) => {
-    console.log('PopoverTrays: party players changed', {
-      count: players.length,
-      players: players.map(p => ({ 
-        name: p.name, 
-        id: p.connectionId, 
-        hasCurrentRollResult: !!p.metadata[getPluginId("currentRollResult")]
-      }))
-    });
     setPlayers(players);
   }), []);
 
   // Get current player's metadata separately (since party.getPlayers might not include own updates)
   useEffect(() => {
-    OBR.player.getMetadata().then(metadata => {
-      console.log('PopoverTrays: initial current player metadata', {
-        hasMetadata: !!metadata,
-        currentRollResult: metadata ? metadata[getPluginId("currentRollResult")] : 'no metadata',
-        allKeys: metadata ? Object.keys(metadata) : 'no metadata',
-        pluginIdKey: getPluginId("currentRollResult"),
-        allMetadata: metadata
+    OBR.player.getMetadata()
+      .then(metadata => {
+        setCurrentPlayerMetadata(metadata || {});
+      })
+      .catch(error => {
+        console.warn('Failed to get player metadata:', error);
+        setCurrentPlayerMetadata({});
       });
-      setCurrentPlayerMetadata(metadata);
-    });
   }, []);
-  useEffect(() => OBR.player.onChange((metadata) => {
-    console.log('PopoverTrays: current player metadata changed', {
-      hasResult: !!metadata?.metadata?.[getPluginId("currentRollResult")],
-      timestamp: metadata?.metadata?.[getPluginId("currentRollResult")]?.timestamp
-    });
-    setCurrentPlayerMetadata(metadata);
+  useEffect(() => OBR.player.onChange((player) => {
+    setCurrentPlayerMetadata(player.metadata || {});
   }), []);
 
   // Accumulate roll history from all players' metadata (including current player)
@@ -132,8 +104,8 @@ export function PopoverTrays() {
       
       // Process current player's roll from their metadata
       if (currentPlayer && currentPlayerMetadata) {
-        // OBR.player.getMetadata() returns a Player object, so we need .metadata property
-        const currentResult = currentPlayerMetadata.metadata?.[getPluginId("currentRollResult")] as any;
+        // OBR.player.getMetadata() returns metadata directly
+        const currentResult = currentPlayerMetadata[getPluginId("currentRollResult")] as any;
         if (currentResult && currentResult.timestamp && currentResult.isComplete) {
           const entryId = `${currentPlayer.connectionId}-${currentResult.timestamp}`;
           
@@ -166,20 +138,6 @@ export function PopoverTrays() {
       updatedHistory.sort((a, b) => a.timestamp - b.timestamp);
       const finalHistory = updatedHistory.slice(-20);
       
-      console.log('PopoverTrays: updated roll history', {
-        playersCount: players.length,
-        hasCurrentPlayer: !!currentPlayer,
-        hasCurrentPlayerMetadata: !!currentPlayerMetadata,
-        currentPlayerResult: currentPlayer && currentPlayerMetadata ? 
-          currentPlayerMetadata.metadata?.[getPluginId("currentRollResult")] : 'none',
-        totalEntries: finalHistory.length,
-        entries: finalHistory.map(r => ({ 
-          id: r.id, 
-          playerName: r.player.name, 
-          timestamp: r.timestamp,
-          isCurrentPlayer: currentPlayer ? r.playerId === currentPlayer.connectionId : 'unknown'
-        }))
-      });
       
       return finalHistory;
     });

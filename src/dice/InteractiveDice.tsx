@@ -66,8 +66,6 @@ export function InteractiveDice(
     if (dragAnchor) {
       const handleUp = (e: PointerEvent) => {
         setDragAnchor(null);
-        // Drag-to-reroll disabled for Savage Worlds
-        // Individual die rerolls not allowed - rerolls affect the entire test
       };
 
       const handleMove = (e: PointerEvent) => {

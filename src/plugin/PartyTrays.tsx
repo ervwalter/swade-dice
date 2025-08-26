@@ -18,7 +18,12 @@ export function PartyTrays() {
   const [focusedTray, setFocusTray] = useState<string | null>(null);
 
   useEffect(() => {
-    OBR.party.getPlayers().then(setPlayers);
+    OBR.party.getPlayers()
+      .then(setPlayers)
+      .catch((error) => {
+        console.warn('Failed to get party players:', error);
+        setPlayers([]);
+      });
   }, []);
   useEffect(() => OBR.party.onChange(setPlayers), []);
 

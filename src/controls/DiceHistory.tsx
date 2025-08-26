@@ -64,7 +64,7 @@ export function DiceHistory() {
       diceSet.dice[0]?.style,
       roll.rollMode === 'TRAIT'
     );
-    startRoll({ dice, bonus: 0, hidden });
+    startRoll({ dice, hidden });
     resetDiceCounts();
     handleClose();
   }

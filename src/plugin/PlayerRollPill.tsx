@@ -1,16 +1,16 @@
 import { Player } from "@owlbear-rodeo/sdk";
 
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import { useTheme } from "@mui/material/styles";
 
 import { SavageWorldsResultsSummary } from "../controls/SavageWorldsResultsSummary";
 import { SavageWorldsResults } from "../controls/SavageWorldsResults";
+import { PlayerRollResult } from "../types/SavageWorldsTypes";
 
 export interface PlayerRollPillProps {
   player: Player;
-  result?: any; // SavageWorldsResults type
+  result?: PlayerRollResult;
   onClick?: () => void;
   showTimestamp?: boolean;
   timestamp?: number;

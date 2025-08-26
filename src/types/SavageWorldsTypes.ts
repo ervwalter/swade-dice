@@ -26,7 +26,7 @@ export interface RollOutcome {
 /**
  * Savage Worlds roll modes
  */
-export type SavageRollMode = "TRAIT" | "DAMAGE";
+export type SavageRollMode = "TRAIT" | "DAMAGE" | "STANDARD";
 
 /**
  * Complete Savage Worlds roll result
@@ -55,7 +55,6 @@ export interface SavageRollResult {
   timestamp: number;
 }
 
-// Legacy types kept for compatibility during migration
 /**
  * Represents the result of a single die that can explode
  */
@@ -66,4 +65,20 @@ export interface ExplosionResult {
   total: number;
   exploded: boolean;
   isWildDie?: boolean;
+}
+
+// Plugin-specific types for OBR integration
+export interface PlayerRollResult extends SavageRollResult {
+  // Additional fields that might be added by the plugin layer
+}
+
+export interface RollHistoryEntry {
+  id: string;
+  playerId: string;
+  player: any; // Import from OBR SDK would create circular dependency, keeping as any
+  result: PlayerRollResult;
+  timestamp: number;
+  addedAt: number;
+  isFading?: boolean;
+  isHidden?: boolean;
 }

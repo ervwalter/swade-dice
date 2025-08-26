@@ -3,11 +3,11 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import { alpha, useTheme } from "@mui/material/styles";
 
 interface ModeSelectorProps {
-  autoMode: "TRAIT" | "DAMAGE";
+  autoMode: "TRAIT" | "DAMAGE" | "STANDARD";
   visible: boolean;
   disabled?: boolean;
-  currentMode?: "AUTO" | "TRAIT" | "DAMAGE";
-  onModeChange?: (mode: "TRAIT" | "DAMAGE") => void;
+  currentMode?: "AUTO" | "TRAIT" | "DAMAGE" | "STANDARD";
+  onModeChange?: (mode: "TRAIT" | "DAMAGE" | "STANDARD") => void;
 }
 
 export function ModeSelector({ 
@@ -22,7 +22,7 @@ export function ModeSelector({
   // Determine effective mode based on store state
   const effectiveMode = currentMode === "AUTO" ? autoMode : currentMode;
   
-  const handleModeClick = (mode: "TRAIT" | "DAMAGE") => {
+  const handleModeClick = (mode: "TRAIT" | "DAMAGE" | "STANDARD") => {
     if (disabled) return;
     onModeChange?.(mode);
   };

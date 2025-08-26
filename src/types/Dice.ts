@@ -4,34 +4,21 @@ import { Die } from "./Die";
 
 /**
  * The roll of a set of dice.
- * @example <caption>2d6 with a +6 bonus to the entire roll</caption>
+ * @example <caption>2d6 rolled together</caption>
  * {
  *  dice: [
  *    {id: "123", set: "NEBULA", type: "D6"},
  *    {id: "234", set: "NEBULA", type: "D6"},
- *  ],
- *  bonus: 6
+ *  ]
  * }
  *
- * @example <caption>1d6+3 + 1d8</caption>
- * {
- *  dice: [
- *    {
- *      dice: [{id: "123", set: "NEBULA", type: "D6"}],
- *      bonus: 3
- *    },
- *    {id: "234", set: "NEBULA", type: "D8"}]
- *  ],
- * }
- *
- * @example <caption>A D12 rolled twice taking the highest with a bonus +6 to the roll</caption>
+ * @example <caption>A D12 rolled twice taking the highest</caption>
  * {
  *  dice: [
  *    {id: "123", set: "NEBULA", type: "D12"},
  *    {id: "234", set: "NEBULA", type: "D12"}
  *  ],
- *  combination: "HIGHEST",
- *  bonus: 6
+ *  combination: "HIGHEST"
  * }
  *
  * @example <caption>A single D12 rolled with an added D10</caption>
@@ -49,7 +36,6 @@ export interface Dice {
    * How to combine the dice for this roll (defaults to `SUM` if undefined)
    */
   combination?: "HIGHEST" | "LOWEST" | "SUM" | "NONE";
-  bonus?: number;
 }
 
 export function isDice(value: any): value is Dice {

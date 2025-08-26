@@ -6,17 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 
 import { PlayerRollPill } from "./PlayerRollPill";
-
-interface RollHistoryEntry {
-  id: string;
-  playerId: string;
-  player: any;
-  result: any;
-  timestamp: number;
-  addedAt: number;
-  isFading?: boolean;
-  isHidden?: boolean;
-}
+import { RollHistoryEntry } from "../types/SavageWorldsTypes";
 
 export function PopoverTray({
   rollHistory,
@@ -27,18 +17,22 @@ export function PopoverTray({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
-  const prevHistoryLength = useRef(rollHistory.length);
+  const prevHistoryIds = useRef<Set<string>>(new Set());
   
   // Auto-scroll to bottom when new entries are added
   useEffect(() => {
-    if (rollHistory.length > prevHistoryLength.current && containerRef.current) {
+    const currentIds = new Set(rollHistory.map(entry => entry.id));
+    const hasNewEntry = rollHistory.some(entry => !prevHistoryIds.current.has(entry.id));
+    
+    if (hasNewEntry && containerRef.current) {
       containerRef.current.scrollTo({
         top: containerRef.current.scrollHeight,
         behavior: 'smooth'
       });
     }
-    prevHistoryLength.current = rollHistory.length;
-  }, [rollHistory.length]);
+    
+    prevHistoryIds.current = currentIds;
+  }, [rollHistory]);
 
   return (
     <Box component="div" position="absolute" right={16} bottom={16}>

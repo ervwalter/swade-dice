@@ -7,7 +7,7 @@ import { Die } from "../types/Die";
 import { generateDiceId } from "../helpers/generateDiceId";
 
 export type DiceCounts = Record<string, number>;
-export type RollModeSelection = 'AUTO' | 'TRAIT' | 'DAMAGE';
+export type RollModeSelection = 'AUTO' | 'TRAIT' | 'DAMAGE' | 'STANDARD';
 
 interface DiceControlsState {
   diceSet: DiceSet;
@@ -23,7 +23,7 @@ interface DiceControlsState {
   traitModifier: number;   // Modifier for trait tests
   damageModifier: number;  // Modifier for damage rolls
   modeChoice: RollModeSelection;  // User's mode selection (AUTO, TRAIT, or DAMAGE)
-  rollMode: 'TRAIT' | 'DAMAGE';  // The actual current mode
+  rollMode: 'TRAIT' | 'DAMAGE' | 'STANDARD';  // The actual current mode
   // Results display state
   resultsDetailsPinned: boolean;
   resultsDetailsHovered: boolean;
@@ -59,7 +59,6 @@ const loadDiceSet = () => {
       }
     }
   } catch (e) {
-    console.error('Failed to load dice set:', e);
   }
   
   // Default: first valid set (not Nebula or "all")
@@ -73,10 +72,11 @@ const initialDiceCounts = getDiceCountsFromSet(initialSet);
 const initialDiceById = getDiceByIdFromSet(initialSet);
 
 // Helper to compute actual roll mode
-function computeRollMode(modeChoice: RollModeSelection, counts: DiceCounts): 'TRAIT' | 'DAMAGE' {
+function computeRollMode(modeChoice: RollModeSelection, counts: DiceCounts): 'TRAIT' | 'DAMAGE' | 'STANDARD' {
   // If explicitly chosen, always use that mode regardless of dice count
   if (modeChoice === 'TRAIT') return 'TRAIT';
   if (modeChoice === 'DAMAGE') return 'DAMAGE';
+  if (modeChoice === 'STANDARD') return 'STANDARD';
   
   // Auto mode: determine based on dice count
   const totalCount = Object.values(counts).reduce((sum, count) => sum + count, 0);
@@ -105,7 +105,6 @@ const loadResultsDetailsPinned = () => {
     const saved = localStorage.getItem("savage-worlds-results-pinned");
     return saved === "true";
   } catch (e) {
-    console.error('Failed to load results display preference:', e);
     return false;
   }
 };
@@ -154,7 +153,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
       try {
         localStorage.setItem('swade-diceSetId', diceSet.id);
       } catch (e) {
-        console.error('Failed to save dice set:', e);
       }
     },
     resetDiceCounts(preserveMode?: boolean) {

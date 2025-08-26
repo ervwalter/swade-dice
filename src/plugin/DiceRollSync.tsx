@@ -1,4 +1,4 @@
-import OBR from "@owlbear-rodeo/sdk";
+import OBR, { Player } from "@owlbear-rodeo/sdk";
 import { useEffect, useRef, useState } from "react";
 import { useDiceRollStore } from "../dice/store";
 import { useSavageWorldsResults } from "../hooks/useSavageWorldsResults";
@@ -10,13 +10,13 @@ import { useRollHistoryStore } from "./rollHistoryStore";
 export function DiceRollSync() {
   const prevIds = useRef<string[]>([]);
   const prevResultTimestamp = useRef<number>(0);
-  const [currentPlayer, setCurrentPlayer] = useState<any>(null);
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   
   // Get the current result (with dynamic recalculation)
   const currentResult = useSavageWorldsResults();
   
   // Get roll history store
-  const addOrUpdateRoll = useRollHistoryStore((state: any) => state.addOrUpdateRoll);
+  const addOrUpdateRoll = useRollHistoryStore((state) => state.addOrUpdateRoll);
 
   // Get current player info
   useEffect(() => {
@@ -34,9 +34,8 @@ export function DiceRollSync() {
           name: name,
           color: color,
           metadata: {}
-        });
+        } as Player);
       } catch (error) {
-        console.error('Failed to get current player info:', error);
       }
     };
     
@@ -112,23 +111,11 @@ export function DiceRollSync() {
     const rollState = useDiceRollStore.getState();
     const hasCompletedRoll = rollState.roll && rollState.currentRollResult;
     
-    console.log('DiceRollSync: checking roll state', {
-      hasRoll: !!rollState.roll,
-      hasCurrentRollResult: !!rollState.currentRollResult,
-      hasCompletedRoll,
-      hasCurrentResult: !!currentResult,
-      currentResultComplete: currentResult?.isComplete
-    });
     
     if (hasCompletedRoll && currentResult) {
       // Send updated result to remote players
       const resultToSend = rollState.roll?.hidden ? undefined : currentResult;
       
-      console.log('DiceRollSync: setting completed roll metadata', {
-        isHidden: rollState.roll?.hidden,
-        hasResultToSend: !!resultToSend,
-        timestamp: resultToSend?.timestamp
-      });
       
       OBR.player.setMetadata({
         [getPluginId("currentRollResult")]: resultToSend,
@@ -138,7 +125,6 @@ export function DiceRollSync() {
       // since the popover runs in a separate iframe and can't access this store
     } else if (!rollState.roll) {
       // Clear result when there's no active roll
-      console.log('DiceRollSync: clearing roll metadata (no active roll)');
       OBR.player.setMetadata({
         [getPluginId("currentRollResult")]: undefined,
       });

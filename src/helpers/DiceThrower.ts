@@ -3,7 +3,6 @@ import { DiceQuaternion } from "../types/DiceQuaternion";
 import { DiceVector3 } from "../types/DiceVector3";
 
 import { random } from "./random";
-import { SeededRandom } from "./SeededRandom";
 
 const MIN_X = -0.3;
 const MAX_X = 0.3;
@@ -16,27 +15,25 @@ const MAX_LAUNCH_VELOCITY = 2;
 const MIN_ANGULAR_VELOCITY = 2;
 const MAX_ANGULAR_VELOCITY = 6;
 
-export function randomPosition(rng?: SeededRandom): DiceVector3 {
-  const rand = rng ? (min: number, max: number) => rng.range(min, max) : random;
+export function randomPosition(): DiceVector3 {
   return {
-    x: rand(MIN_X, MAX_X),
-    y: rand(MIN_Y, MAX_Y),
-    z: rand(MIN_Z, MAX_Z),
+    x: random(MIN_X, MAX_X),
+    y: random(MIN_Y, MAX_Y),
+    z: random(MIN_Z, MAX_Z),
   };
 }
 
 /** Adapted from https://stackoverflow.com/a/56794499 */
-export function randomRotation(rng?: SeededRandom): DiceQuaternion {
-  const rand = rng ? (min: number, max: number) => rng.range(min, max) : random;
+export function randomRotation(): DiceQuaternion {
   let x, y, z, u, v, w, s;
   do {
-    x = rand(-1, 1);
-    y = rand(-1, 1);
+    x = random(-1, 1);
+    y = random(-1, 1);
     z = x * x + y * y;
   } while (z > 1);
   do {
-    u = rand(-1, 1);
-    v = rand(-1, 1);
+    u = random(-1, 1);
+    v = random(-1, 1);
     w = u * u + v * v;
   } while (w > 1);
   s = Math.sqrt((1 - z) / w);
@@ -55,8 +52,7 @@ export function randomRotation(rng?: SeededRandom): DiceQuaternion {
  */
 export function randomLinearVelocity(
   position: DiceVector3,
-  speedMultiplier?: number,
-  rng?: SeededRandom
+  speedMultiplier?: number
 ): DiceVector3 {
   // Only use the horizontal plane
   const { x, z } = position;
@@ -67,9 +63,8 @@ export function randomLinearVelocity(
   }
   const norm: DiceVector3 = { x: x / length, y: 0, z: z / length };
   // Generate a random speed
-  const rand = rng ? (min: number, max: number) => rng.range(min, max) : random;
   const speed =
-    rand(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
+    random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
   // Map the speed to the normalized direction and reverse it so it
   // goes inwards instead of outwards
   const velocity: DiceVector3 = {
@@ -83,12 +78,10 @@ export function randomLinearVelocity(
 
 export function randomLinearVelocityFromDirection(
   direction: DiceVector3,
-  speedMultiplier?: number,
-  rng?: SeededRandom
+  speedMultiplier?: number
 ): DiceVector3 {
-  const rand = rng ? (min: number, max: number) => rng.range(min, max) : random;
   const speed =
-    rand(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
+    random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
   const velocity: DiceVector3 = {
     x: direction.x * speed,
     y: direction.y * speed,
@@ -98,21 +91,19 @@ export function randomLinearVelocityFromDirection(
   return velocity;
 }
 
-export function randomAngularVelocity(rng?: SeededRandom): DiceVector3 {
-  const rand = rng ? (min: number, max: number) => rng.range(min, max) : random;
+export function randomAngularVelocity(): DiceVector3 {
   return {
-    x: rand(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-    y: rand(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-    z: rand(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+    x: random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+    y: random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+    z: random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
   };
 }
 
-export function getRandomDiceThrow(speedMultiplier?: number, rng?: SeededRandom): DiceThrow {
-  // Use the provided RNG or fall back to Math.random via the helper functions
-  const position = randomPosition(rng);
-  const rotation = randomRotation(rng);
-  const linearVelocity = randomLinearVelocity(position, speedMultiplier, rng);
-  const angularVelocity = randomAngularVelocity(rng);
+export function getRandomDiceThrow(speedMultiplier?: number): DiceThrow {
+  const position = randomPosition();
+  const rotation = randomRotation();
+  const linearVelocity = randomLinearVelocity(position, speedMultiplier);
+  const angularVelocity = randomAngularVelocity();
   
   return {
     position,
@@ -125,11 +116,8 @@ export function getRandomDiceThrow(speedMultiplier?: number, rng?: SeededRandom)
 /** A dice thrower that keeps a history of previous dice to avoid collisions */
 export class DiceThrower {
   private history: DiceThrow[] = [];
-  private rng?: SeededRandom;
 
-  constructor(rng?: SeededRandom) {
-    this.rng = rng;
-  }
+  constructor() {}
 
   private isPositionValid(position: DiceVector3) {
     for (const diceThrow of this.history) {
@@ -150,16 +138,16 @@ export class DiceThrower {
     if (this.history.length > index) {
       return this.history[index];
     }
-    let position = randomPosition(this.rng);
+    let position = randomPosition();
     for (let i = 0; i < 50; i++) {
       if (this.isPositionValid(position)) {
         break;
       }
-      position = randomPosition(this.rng);
+      position = randomPosition();
     }
-    const rotation = randomRotation(this.rng);
-    const linearVelocity = randomLinearVelocity(position, undefined, this.rng);
-    const angularVelocity = randomAngularVelocity(this.rng);
+    const rotation = randomRotation();
+    const linearVelocity = randomLinearVelocity(position, undefined);
+    const angularVelocity = randomAngularVelocity();
 
     const diceThrow: DiceThrow = {
       position,
