@@ -237,8 +237,14 @@ function DicePickedControls() {
               sx={{
                 borderRadius: "20px",
                 px: 3,
+                color: "white",
+                backgroundColor: "#9966ff",
+                "&:hover": {
+                  backgroundColor: "#8855ee",
+                },
                 ":active": {
                   animation: `${jiggle} 0.3s infinite`,
+                  backgroundColor: "#7744dd",
                 },
               }}
               id="dice-roll-button"
@@ -285,6 +291,9 @@ function DicePickedControls() {
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               handleReset();
+            }}
+            sx={{
+              color: "white",
             }}
           >
             <CloseIcon />

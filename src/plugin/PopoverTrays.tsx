@@ -163,8 +163,8 @@ export function PopoverTrays() {
       // Dynamic height based on content (max 450px)
       const maxHeight = Math.min(450, rollHistory.length * 50 + 100);
       OBR.popover.setHeight(getPluginId("popover"), maxHeight);
-      // Width for roll history
-      OBR.popover.setWidth(getPluginId("popover"), 350);
+      // Width for roll history + margin
+      OBR.popover.setWidth(getPluginId("popover"), 350 + 80);
     }
   }, [isVisible, rollHistory.length]);
 
@@ -173,9 +173,9 @@ export function PopoverTrays() {
       component="div"
       position="absolute"
       bottom="0"
-      left="0"
-      right="0"
+      right="80px" // Position 80px from right edge
       top="0"
+      width="350px" // Fixed width to match our popover width
       overflow="hidden"
     >
       {isVisible && (

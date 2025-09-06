@@ -1,46 +1,84 @@
 # Savage Worlds Dice
 
-Beautiful, deterministic 3D dice for Savage Worlds Adventure Edition (SWADE), built with React, Three.js, and the Rapier physics engine. Ships as an Owlbear Rodeo extension and runs standalone for local testing.
+3D dice roller for Savage Worlds Adventure Edition (SWADE), built with React, Three.js, and the Rapier physics engine. Runs as an Owlbear Rodeo extension and standalone for development.
 
-![Example](/docs/header.jpg)
+![Example](public/docs/header.png)
 
 ## Features
-- SWADE mechanics: Trait and Damage rolls, exploding dice, target number and raises, optional Wild Die.
-- Deterministic physics: results sync across players by sharing seeds and initial throws (no network jitter issues).
-- Rich visuals and audio: multiple materials, accurate colliders, environment lighting, and roll sounds.
-- Player popovers in Owlbear Rodeo: preview other players’ trays and open their tray in focus.
-- Fairness tooling: built‑in roll distribution charts and chi‑squared check for sanity testing.
 
-## How It Works
-The roll pipeline seeds a Rapier simulation, derives per‑die throws deterministically, and computes values from final transforms. Explosions are spawned when a die lands on its max face (e.g., D6→6). For Trait tests, the Wild Die (Nebula D6) is rolled alongside your trait die and the best total (plus modifiers) is compared to the target number; raises are calculated in steps of +4.
+**SWADE Mechanics**
+- Trait tests with optional Wild Die (d6)
+- Damage rolls with multiple dice
+- Exploding dice on maximum values
+- Target number evaluation with raises (every +4 over target)
+- Separate modifiers for trait and damage rolls
 
-In Owlbear Rodeo, the extension syncs via player metadata. Because physics are deterministic, only inputs (seed, throws, dice) and results are shared; each client simulates locally for smooth animation.
+**Technical**
+- Deterministic physics simulation for multiplayer sync
+- Real-time 3D animation with Rapier physics engine
+- Multiple dice materials and visual styles
+- Audio feedback for dice interactions
+- Built-in fairness testing with distribution analysis
 
-## Using the App
-- Local UI: pick a set and dice in the left rail, set Target Number and modifiers in the top bar, then press and hold on the tray to “charge” a stronger throw. Results appear with total, raises, and explosion history.
-- Wild Die: enable in the top bar when making Trait tests (single trait die selected). The UI highlights the best die.
-- Fairness Tester: toggle from the sidebar and run distributions to visualize balance.
+**Multiplayer**
+- Roll result sharing across connected players
+- Party roll history popover showing recent rolls from all players
+- Private roll option
+- Local roll history with settings preservation
 
-## Develop & Build
-- Install: `yarn`
-- Dev server: `yarn dev` (Vite at http://localhost:5173)
-- Production build: `yarn build` → outputs to `dist/`
-- Preview build: `yarn preview`
+## Quick Start
 
-Owlbear Rodeo extension entry points:
-- `index.html` → main app (`src/main.tsx` / `src/App.tsx`)
-- `background.html` → registers the popover (`src/background.ts`)
-- `popover.html` → player trays (`src/popover.tsx`)
+```bash
+yarn                # Install dependencies
+yarn dev           # Development server at http://localhost:5173
+yarn build         # Production build to dist/
+yarn preview       # Preview production build
+```
 
-## Project Structure
-- `src/tray`, `src/dice`, `src/controls`: tray rendering, physics roll flow, and UI controls.
-- `src/plugin`: Owlbear Rodeo integration (metadata sync, popovers, themes).
-- `src/materials`, `src/meshes`, `src/colliders`, `src/previews`: assets and rendering helpers.
-- `src/tests`: manual fairness tools (charts, tester button).
-- `src/sets`: dice set definitions.
+## Architecture
+
+**Entry Points**
+- `index.html` → Main application (`src/main.tsx` → `src/App.tsx`)
+- `popover.html` → Party roll history popover (`src/popover.tsx`)
+- `background.html` → Owlbear Rodeo extension registration (`src/background.ts`)
+
+**Key Directories**
+- `src/dice/` - Physics simulation, SWADE roll processing, explosion handling
+- `src/tray/` - 3D dice tray rendering and interaction
+- `src/controls/` - UI components (sidebar, top controls, mode selection)
+- `src/plugin/` - Owlbear Rodeo integration (sync, themes, popovers)
+- `src/types/` - TypeScript definitions for dice mechanics and SWADE rules
+- `src/sets/` - Dice set configurations and visual styles
+- `src/materials/`, `src/meshes/`, `src/colliders/` - 3D assets and rendering
+- `src/tests/` - Fairness testing tools
+
+**State Management**
+- Zustand with Immer for dice rolling state (`src/dice/store.ts`)
+- UI controls and SWADE settings (`src/controls/store.ts`)
+- Multiplayer roll history (`src/plugin/rollHistoryStore.ts`)
+
+## Technology Stack
+
+- **Frontend**: React 18, TypeScript, Material-UI
+- **3D Graphics**: Three.js, @react-three/fiber, @react-three/drei
+- **Physics**: Rapier 3D physics engine via @react-three/rapier
+- **Build**: Vite with multi-entry configuration
+- **Platform**: Owlbear Rodeo SDK integration
+
+## SWADE Implementation
+
+The application implements core Savage Worlds mechanics:
+- **Exploding Dice**: Dice showing maximum value roll again, adding to total
+- **Wild Die**: Optional d6 rolled with trait tests, best result used
+- **Raises**: Success levels calculated in 4-point increments above target number
+- **Trait vs Damage**: Separate roll modes with different modifier handling
+
+Roll results are shared between players in the session via Owlbear Rodeo's player metadata system.
 
 ## Attributions
-d8 by Leonardo Henrique Martini from <a href="https://thenounproject.com/browse/icons/term/d8/" target="_blank" title="d8 Icons">Noun Project</a> (CC BY 3.0)
+
+d8 icon by Leonardo Henrique Martini from [Noun Project](https://thenounproject.com/browse/icons/term/d8/) (CC BY 3.0)
 
 ## License
+
 GNU GPLv3. See LICENSE for details.

@@ -1,6 +1,6 @@
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import { alpha, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 
 interface ModeSelectorProps {
   autoMode: "TRAIT" | "DAMAGE" | "STANDARD";
@@ -41,9 +41,10 @@ export function ModeSelector({
         style={{
           minWidth: "75px",
           fontSize: "0.75rem",
+          color: "white",
           backgroundColor: effectiveMode === "TRAIT" 
-            ? theme.palette.primary.main 
-            : alpha(theme.palette.action.disabled, 0.12),
+            ? "#9966ff" 
+            : "rgba(255, 255, 255, 0.2)",
         }}
       >
         Trait
@@ -55,9 +56,10 @@ export function ModeSelector({
         style={{
           minWidth: "75px",
           fontSize: "0.75rem",
+          color: "white",
           backgroundColor: effectiveMode === "DAMAGE" 
-            ? theme.palette.primary.main 
-            : alpha(theme.palette.action.disabled, 0.12),
+            ? "#9966ff" 
+            : "rgba(255, 255, 255, 0.2)",
         }}
       >
         Damage

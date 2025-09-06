@@ -9,6 +9,9 @@ declare var __dirname: string;
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ["**/*.glb", "**/*.hdr"],
+  server: {
+    cors: true,
+  },
   build: {
     rollupOptions: {
       input: {
