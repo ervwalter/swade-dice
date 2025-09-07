@@ -21,7 +21,7 @@ export function DiceRollSync() {
   // Get the current result (with dynamic recalculation)
   const currentResult = useSavageWorldsResults();
 
-  // Get current player info
+  // Get current player info and listen for changes
   useEffect(() => {
     const getCurrentPlayer = async () => {
       try {
@@ -36,13 +36,23 @@ export function DiceRollSync() {
           id: id,
           name: name,
           color: color,
-          metadata: {}
+          metadata: {},
+          role: "PLAYER", // Default role
+          syncView: false  // Default syncView
         } as Player);
       } catch {
       }
     };
     
+    // Get initial player info
     getCurrentPlayer();
+    
+    // Listen for player changes - just refetch the current player
+    const unsubscribe = OBR.player.onChange(() => {
+      getCurrentPlayer();
+    });
+    
+    return unsubscribe;
   }, []);
   
   useEffect(
@@ -108,19 +118,25 @@ export function DiceRollSync() {
     const rollState = useDiceRollStore.getState();
     const isHidden = rollState.roll?.hidden;
     
-    if (currentResult && currentResult.isComplete && currentPlayer && !isHidden) {
-      const broadcast: RollBroadcast = {
-        playerId: currentPlayer.connectionId,
-        player: currentPlayer,
-        result: currentResult,
-      };
-      
-      console.log("🎲 Broadcasting roll (result change):", broadcast);
-      OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
-        destination: "ALL"
-      });
+    // Only broadcast when we have a complete result, but don't depend on currentPlayer changes
+    if (currentResult && currentResult.isComplete && !isHidden) {
+      // Get current player info at broadcast time (not from state)
+      const player = currentPlayer;
+      if (player) {
+        const broadcast: RollBroadcast = {
+          playerId: player.connectionId,
+          player: player,
+          result: currentResult,
+        };
+        
+        console.log("🎲 Broadcasting roll (result change):", broadcast);
+        OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
+          destination: "ALL"
+        });
+      }
     }
-  }, [currentResult, currentPlayer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentResult]); // Intentionally not including currentPlayer to avoid re-broadcasts on color changes
 
   return null;
 }
