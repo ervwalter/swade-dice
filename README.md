@@ -21,10 +21,10 @@
 - Built-in fairness testing with distribution analysis
 
 **Multiplayer**
-- Roll result sharing across connected players
-- Party roll history popover showing recent rolls from all players
+- Real-time roll result sharing via OBR broadcasts
+- Party roll history tray showing recent rolls from all players
 - Private roll option
-- Local roll history with settings preservation
+- Embedded roll history with automatic updates
 
 ## Quick Start
 
@@ -38,15 +38,13 @@ yarn preview       # Preview production build
 ## Architecture
 
 **Entry Points**
-- `index.html` → Main application (`src/main.tsx` → `src/App.tsx`)
-- `popover.html` → Party roll history popover (`src/popover.tsx`)
-- `background.html` → Owlbear Rodeo extension registration (`src/background.ts`)
+- `index.html` → Main application with embedded roll history (`src/main.tsx` → `src/App.tsx`)
 
 **Key Directories**
 - `src/dice/` - Physics simulation, SWADE roll processing, explosion handling
 - `src/tray/` - 3D dice tray rendering and interaction
 - `src/controls/` - UI components (sidebar, top controls, mode selection)
-- `src/plugin/` - Owlbear Rodeo integration (sync, themes, popovers)
+- `src/plugin/` - Owlbear Rodeo integration (broadcasts, themes, roll history)
 - `src/types/` - TypeScript definitions for dice mechanics and SWADE rules
 - `src/sets/` - Dice set configurations and visual styles
 - `src/materials/`, `src/meshes/`, `src/colliders/` - 3D assets and rendering
@@ -55,14 +53,14 @@ yarn preview       # Preview production build
 **State Management**
 - Zustand with Immer for dice rolling state (`src/dice/store.ts`)
 - UI controls and SWADE settings (`src/controls/store.ts`)
-- Multiplayer roll history (`src/plugin/rollHistoryStore.ts`)
+- Real-time roll history via OBR broadcast listeners
 
 ## Technology Stack
 
 - **Frontend**: React 18, TypeScript, Material-UI
 - **3D Graphics**: Three.js, @react-three/fiber, @react-three/drei
 - **Physics**: Rapier 3D physics engine via @react-three/rapier
-- **Build**: Vite with multi-entry configuration
+- **Build**: Vite with single-entry configuration
 - **Platform**: Owlbear Rodeo SDK integration
 
 ## SWADE Implementation
@@ -73,7 +71,7 @@ The application implements core Savage Worlds mechanics:
 - **Raises**: Success levels calculated in 4-point increments above target number
 - **Trait vs Damage**: Separate roll modes with different modifier handling
 
-Roll results are shared between players in the session via Owlbear Rodeo's player metadata system.
+Roll results are shared between players in real-time via Owlbear Rodeo's broadcast API, with history displayed in an embedded tray at the bottom of the main application.
 
 ## Attributions
 

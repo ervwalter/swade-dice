@@ -52,7 +52,7 @@ The extension uses realistic 3D physics simulation to determine results, with be
 
 **Roll Sharing & History**
 
-When you make a roll, the results are automatically shared with other players in your session. The extension shows a popover with recent rolls from all players, making it easy to see what everyone rolled.
+When you make a roll, the results are automatically shared with other players in your session in real-time. The extension shows a bottom tray with recent rolls from all players, making it easy to see what everyone rolled.
 
 ![player roll](https://swade-dice-jqyur.ondigitalocean.app/docs/player.png)
 
