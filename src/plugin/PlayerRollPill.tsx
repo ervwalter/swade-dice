@@ -51,7 +51,7 @@ export function PlayerRollPill({
     return luminance > 0.5 ? 'black' : 'white';
   };
 
-  return (
+  const pillContent = (
     <Box
       component="div"
       onClick={onClick}
@@ -88,50 +88,34 @@ export function PlayerRollPill({
       
       {/* Result section (only if there's a result) */}
       {hasResult && (
-        <Tooltip
-          title={<SavageWorldsResults result={result} />}
-          placement="top"
-          arrow
-          componentsProps={{
-            tooltip: {
-              sx: {
-                backgroundColor: "rgba(0, 0, 0, 0.9)",
-                maxWidth: "300px",
-                borderRadius: "4px",
-                padding: "12px",
-              }
-            }
+        <Box
+          component="div"
+          sx={{
+            backgroundColor: theme.palette.mode === "dark" 
+              ? "rgba(0, 0, 0, 0.3)" 
+              : "rgba(0, 0, 0, 0.15)",
+            color: theme.palette.mode === "dark" ? "white" : "black",
+            px: 1.5,
+            py: 0.5,
+            fontSize: "0.75rem",
+            display: "flex",
+            alignItems: "center",
+            borderTopRightRadius: "16px",
+            borderBottomRightRadius: "16px",
           }}
         >
-          <Box
-            component="div"
-            sx={{
-              backgroundColor: theme.palette.mode === "dark" 
-                ? "rgba(0, 0, 0, 0.3)" 
-                : "rgba(0, 0, 0, 0.15)",
-              color: theme.palette.mode === "dark" ? "white" : "black",
-              px: 1.5,
-              py: 0.5,
-              fontSize: "0.75rem",
-              display: "flex",
-              alignItems: "center",
-              borderTopRightRadius: "16px",
-              borderBottomRightRadius: "16px",
-            }}
-          >
-            <SavageWorldsResultsSummary 
-              result={result} 
-              hidePrefix={true} 
-              variant="body2"
-              singleLine={true}
-              fontSize="0.75rem"
-              showDicePrefix={showDicePrefix}
-              showModeIcon={true}
-              textColor={theme.palette.mode === "dark" ? "white" : "black"}
-              isDarkBackground={theme.palette.mode === "dark"}
-            />
-          </Box>
-        </Tooltip>
+          <SavageWorldsResultsSummary 
+            result={result} 
+            hidePrefix={true} 
+            variant="body2"
+            singleLine={true}
+            fontSize="0.75rem"
+            showDicePrefix={showDicePrefix}
+            showModeIcon={true}
+            textColor={theme.palette.mode === "dark" ? "white" : "black"}
+            isDarkBackground={theme.palette.mode === "dark"}
+          />
+        </Box>
       )}
       
       {/* Timestamp section (optional) */}
@@ -150,5 +134,28 @@ export function PlayerRollPill({
         </Box>
       )}
     </Box>
+  );
+
+  return hasResult ? (
+    <Tooltip
+      title={<SavageWorldsResults result={result} />}
+      placement="bottom-start"
+      arrow
+      followCursor
+      componentsProps={{
+        tooltip: {
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            maxWidth: "300px",
+            borderRadius: "4px",
+            padding: "12px",
+          }
+        }
+      }}
+    >
+      {pillContent}
+    </Tooltip>
+  ) : (
+    pillContent
   );
 }

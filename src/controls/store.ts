@@ -25,7 +25,6 @@ interface DiceControlsState {
   modeChoice: RollModeSelection;  // User's mode selection (AUTO, TRAIT, or DAMAGE)
   rollMode: 'TRAIT' | 'DAMAGE' | 'STANDARD';  // The actual current mode
   // Results display state
-  resultsDetailsPinned: boolean;
   resultsDetailsHovered: boolean;
   // Actions
   changeDiceSet: (diceSet: DiceSet) => void;
@@ -43,7 +42,6 @@ interface DiceControlsState {
   setTargetNumber: (tn: number) => void;
   setModeChoice: (mode: RollModeSelection) => void;
   // Results display actions
-  setResultsDetailsPinned: (pinned: boolean) => void;
   setResultsDetailsHovered: (hovered: boolean) => void;
 }
 
@@ -99,15 +97,6 @@ const loadSavageWorldsSettings = () => {
 
 const { wildDieEnabled: initialWildDie, targetNumber: initialTN } = loadSavageWorldsSettings();
 
-// Load results display preference from localStorage
-const loadResultsDetailsPinned = () => {
-  try {
-    const saved = localStorage.getItem("savage-worlds-results-pinned");
-    return saved === "true";
-  } catch {
-    return false;
-  }
-};
 
 export const useDiceControlsStore = create<DiceControlsState>()(
   immer((set, _get) => ({
@@ -124,7 +113,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     damageModifier: 0,  // Always start at 0 - modifiers are ephemeral
     modeChoice: 'AUTO',   // Default to AUTO mode
     rollMode: computeRollMode('AUTO', initialDiceCounts),  // Computed from modeChoice and counts
-    resultsDetailsPinned: loadResultsDetailsPinned(),
     resultsDetailsHovered: false,
     changeDiceSet(diceSet) {
       set((state) => {
@@ -236,15 +224,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         // Persist to localStorage
         try {
           localStorage.setItem('swade-targetNumber', tn.toString());
-        } catch {}
-      });
-    },
-    setResultsDetailsPinned(pinned) {
-      set((state) => {
-        state.resultsDetailsPinned = pinned;
-        // Persist to localStorage
-        try {
-          localStorage.setItem("savage-worlds-results-pinned", pinned.toString());
         } catch {}
       });
     },

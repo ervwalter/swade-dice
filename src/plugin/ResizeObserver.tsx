@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import throttle from "lodash.throttle";
 
 const THROTTLE_TIME = 100;
-const SIDEBAR_WIDTH = 60;
+const SIDEBAR_WIDTH = 40;
 
 /**
  * Observe window resize and make sure the plugin keeps its aspect ratio

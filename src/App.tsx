@@ -7,6 +7,7 @@ import { Sidebar } from "./controls/Sidebar";
 import { TopControls } from "./controls/TopControls";
 import { PluginGate } from "./plugin/PluginGate";
 import { DiceRollSync } from "./plugin/DiceRollSync";
+import { RollHistoryTray } from "./plugin/RollHistoryTray";
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
         </Box>
         
         <PluginGate>
+          <RollHistoryTray />
                   <DiceRollSync />
         </PluginGate>
       </Stack>

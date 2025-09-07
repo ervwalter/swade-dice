@@ -4,9 +4,15 @@ import { useDiceRollStore } from "../dice/store";
 import { useSavageWorldsResults } from "../hooks/useSavageWorldsResults";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { getPluginId } from "./getPluginId";
-import { useRollHistoryStore } from "./rollHistoryStore";
+import { PlayerRollResult } from "../types/SavageWorldsTypes";
 
-/** Sync the current dice roll to the plugin */
+export interface RollBroadcast {
+  playerId: string;           // Player's connection ID
+  player: Player;             // Full player object (name, color, etc.)
+  result: PlayerRollResult;   // Contains timestamp field
+}
+
+/** Sync the current dice roll via broadcasts */
 export function DiceRollSync() {
   const prevIds = useRef<string[]>([]);
   const prevResultTimestamp = useRef<number>(0);
@@ -14,9 +20,6 @@ export function DiceRollSync() {
   
   // Get the current result (with dynamic recalculation)
   const currentResult = useSavageWorldsResults();
-  
-  // Get roll history store
-  const addOrUpdateRoll = useRollHistoryStore((state) => state.addOrUpdateRoll);
 
   // Get current player info
   useEffect(() => {
@@ -45,11 +48,11 @@ export function DiceRollSync() {
   useEffect(
     () =>
       useDiceRollStore.subscribe((state) => {
-        let shouldSync = false;
+        let shouldBroadcast = false;
         
         if (!state.roll) {
-          // Clear metadata when no roll
-          shouldSync = true;
+          // Clear when no roll - we could broadcast a "clear" message but it's not needed
+          // since roll history will naturally age out
           prevIds.current = [];
           prevResultTimestamp.current = 0;
         } else {
@@ -58,7 +61,7 @@ export function DiceRollSync() {
           const explosionIds = state.explosionDice.map((die) => die.id);
           const ids = [...originalIds, ...explosionIds];
           
-          // Only sync when the roll is COMPLETE
+          // Only broadcast when the roll is COMPLETE
           const isComplete = 
             Object.values(state.rollValues).every((value) => value !== null) &&
             state.pendingDice.length === 0;
@@ -74,7 +77,7 @@ export function DiceRollSync() {
               state.currentRollResult.timestamp !== prevResultTimestamp.current;
             
             if (idsChanged || resultsChanged) {
-              shouldSync = true;
+              shouldBroadcast = true;
               prevIds.current = ids;
               if (state.currentRollResult) {
                 prevResultTimestamp.current = state.currentRollResult.timestamp;
@@ -83,53 +86,40 @@ export function DiceRollSync() {
           }
         }
 
-        if (shouldSync) {
-          // Hide values if needed
-          const throws = state.roll?.hidden ? undefined : state.rollThrows;
-          const values = state.roll?.hidden ? undefined : state.rollValues;
-          const transforms = state.roll?.hidden ? undefined : state.rollTransforms;
-          // Use the dynamically recalculated result instead of the static one
-          const resultToSend = state.roll?.hidden ? undefined : currentResult;
+        if (shouldBroadcast && currentPlayer && currentResult && !state.roll?.hidden) {
+          // Broadcast the roll result to all players
+          const broadcast: RollBroadcast = {
+            playerId: currentPlayer.connectionId,
+            player: currentPlayer,
+            result: currentResult,
+          };
           
-          OBR.player.setMetadata({
-            [getPluginId("roll")]: state.roll,
-            [getPluginId("rollThrows")]: throws,
-            [getPluginId("rollValues")]: values,
-            [getPluginId("rollTransforms")]: transforms,
-            [getPluginId("currentRollResult")]: resultToSend,
+          OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
+            destination: "ALL" // Include self in broadcast
           });
-
-          // Note: Roll history is handled in the second useEffect below
-          // since currentResult (from hook) isn't available in this subscription callback
         }
       }),
-    [currentResult, currentPlayer, addOrUpdateRoll]
+    [currentResult, currentPlayer]
   );
 
-  // Sync results and manage roll history
+  // Also broadcast when currentResult changes (for live updates during explosions)
   useEffect(() => {
     const rollState = useDiceRollStore.getState();
     const hasCompletedRoll = rollState.roll && rollState.currentRollResult;
     
-    
-    if (hasCompletedRoll && currentResult) {
-      // Send updated result to remote players
-      const resultToSend = rollState.roll?.hidden ? undefined : currentResult;
+    if (hasCompletedRoll && currentResult && currentPlayer && !rollState.roll?.hidden) {
+      // Broadcast updated result
+      const broadcast: RollBroadcast = {
+        playerId: currentPlayer.connectionId,
+        player: currentPlayer,
+        result: currentResult,
+      };
       
-      
-      OBR.player.setMetadata({
-        [getPluginId("currentRollResult")]: resultToSend,
-      });
-
-      // Note: Roll history is managed by PopoverTrays reading from player metadata
-      // since the popover runs in a separate iframe and can't access this store
-    } else if (!rollState.roll) {
-      // Clear result when there's no active roll
-      OBR.player.setMetadata({
-        [getPluginId("currentRollResult")]: undefined,
+      OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
+        destination: "ALL"
       });
     }
-  }, [currentResult, currentPlayer, addOrUpdateRoll]);
+  }, [currentResult, currentPlayer]);
 
   return null;
 }

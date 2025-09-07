@@ -4,8 +4,6 @@ import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
-import PushPinIcon from "@mui/icons-material/PushPin";
-import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
 import { useSavageWorldsResults } from "../hooks/useSavageWorldsResults";
@@ -24,13 +22,10 @@ export function SavageWorldsResultsSummaryContainer() {
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
   const reroll = useDiceRollStore((state) => state.reroll);
   
-  const resultsPinned = useDiceControlsStore((state) => state.resultsDetailsPinned);
-  const setResultsPinned = useDiceControlsStore((state) => state.setResultsDetailsPinned);
   const resultsHovered = useDiceControlsStore((state) => state.resultsDetailsHovered);
-  const _setResultsHovered = useDiceControlsStore((state) => state.setResultsDetailsHovered);
   
-  // Show details if either pinned or hovered
-  const showDetails = resultsPinned || resultsHovered;
+  // Show details if hovered
+  const showDetails = resultsHovered;
   
   return (
     <>
@@ -90,29 +85,6 @@ export function SavageWorldsResultsSummaryContainer() {
         </Tooltip>
       </Stack>
       </Box>
-      
-      {/* Pin button positioned in upper right when details are visible */}
-      {showDetails && (
-        <Tooltip title={resultsPinned ? "Unpin details" : "Pin details"}>
-          <IconButton
-            onClick={() => setResultsPinned(!resultsPinned)}
-            sx={{ 
-              position: "absolute",
-              top: 48,  // Position below the control bar
-              right: 8,
-              color: "white",
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-              },
-              zIndex: 1001,  // Above the details panel
-            }}
-            size="small"
-          >
-            {resultsPinned ? <PushPinIcon fontSize="small" /> : <PushPinOutlinedIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-      )}
     </>
   );
 }

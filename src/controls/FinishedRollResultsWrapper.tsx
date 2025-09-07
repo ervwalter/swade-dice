@@ -9,7 +9,6 @@ import { useEffect } from "react";
  * Handles hover detection and visibility for both areas together
  */
 export function FinishedRollResultsWrapper() {
-  const resultsPinned = useDiceControlsStore((state) => state.resultsDetailsPinned);
   const resultsHovered = useDiceControlsStore((state) => state.resultsDetailsHovered);
   const setResultsHovered = useDiceControlsStore((state) => state.setResultsDetailsHovered);
   const roll = useDiceRollStore((state) => state.roll);
@@ -19,8 +18,8 @@ export function FinishedRollResultsWrapper() {
     setResultsHovered(false);
   }, [roll, setResultsHovered]);
   
-  // Show details if either pinned or hovered
-  const showDetails = resultsPinned || resultsHovered;
+  // Show details if hovered
+  const showDetails = resultsHovered;
   
   return (
     <>
