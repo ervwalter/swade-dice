@@ -36,7 +36,7 @@ export function SavageWorldsResultsSummaryContainer() {
           // left: 0,
           // right: 0,
           backgroundColor: "rgba(0, 0, 0, 0.4)",
-          borderRadius: showDetails ? "0" : "0 0 8px 8px",
+          borderRadius: showDetails ? "0" : "0 0 16px 16px",
           pointerEvents: "all",
           padding: "12px 16px",
         }}

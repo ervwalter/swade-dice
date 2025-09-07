@@ -16,7 +16,7 @@ export function SavageWorldsResultsContainer() {
     <div 
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.4)",
-        borderRadius: "0 0 8px 8px",
+        borderRadius: "0 0 16px 16px",
         padding: "12px 32px",
         pointerEvents: "auto",
         zIndex: 1000,
