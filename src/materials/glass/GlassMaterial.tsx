@@ -10,7 +10,10 @@ const sheenColor = new THREE.Color("#4abff4");
 const attenuationColor = new THREE.Color(43 / 255, 1, 115 / 255);
 
 export function GlassMaterial(
-  props: JSX.IntrinsicElements["meshPhysicalMaterial"]
+  props: JSX.IntrinsicElements["meshPhysicalMaterial"] & {
+    transmissionMap?: THREE.Texture;
+    envMapIntensity?: number;
+  }
 ) {
   const [albedoMap, maskMap, normalMap] = useTexture(
     [albedo, mask, normal],
@@ -26,12 +29,14 @@ export function GlassMaterial(
       metalness={0}
       normalMap={normalMap}
       transmission={1}
-      transmissionMap={maskMap}
       thickness={2}
-      envMapIntensity={1}
       attenuationColor={attenuationColor}
       attenuationDistance={0.1}
       {...props}
+      {...({ 
+        transmissionMap: maskMap,
+        envMapIntensity: 1
+      } as Record<string, unknown>)}
     />
   );
 }

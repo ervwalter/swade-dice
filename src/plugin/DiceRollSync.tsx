@@ -35,7 +35,7 @@ export function DiceRollSync() {
           color: color,
           metadata: {}
         } as Player);
-      } catch (error) {
+      } catch {
       }
     };
     

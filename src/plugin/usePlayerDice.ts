@@ -5,6 +5,7 @@ import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
 import { Die } from "../types/Die";
 import { getPluginId } from "./getPluginId";
+import { PlayerRollResult } from "../types/SavageWorldsTypes";
 
 export function usePlayerDice(player?: Player) {
   const diceRoll = useMemo(() => {
@@ -36,7 +37,7 @@ export function usePlayerDice(player?: Player) {
   }, [player]);
   
   const currentRollResult = useMemo(() => {
-    return player?.metadata[getPluginId("currentRollResult")] as any;
+    return player?.metadata[getPluginId("currentRollResult")] as PlayerRollResult | undefined;
   }, [player]);
 
   const finishedRollTransforms = useMemo(() => {

@@ -9,7 +9,7 @@ import {
 import { Die } from "../types/Die";
 import { getValueFromDiceGroup } from "../helpers/getValueFromDiceGroup";
 import { useFrame } from "@react-three/fiber";
-import { useAudioListener } from "../audio/AudioListenerProvider";
+import { useAudioListener } from "../audio/useAudioListener";
 import { getNextBuffer } from "../audio/getAudioBuffer";
 import { PhysicalMaterial } from "../types/PhysicalMaterial";
 import { getDieWeightClass } from "../helpers/getDieWeightClass";
@@ -122,7 +122,7 @@ export function PhysicsDice({
         }
       }
     },
-    [die.id, lockDice]
+    [die.id, die.type, lockDice, onRollFinished]
   );
 
   const handleFrame = useCallback(() => {
@@ -139,7 +139,7 @@ export function PhysicsDice({
 
   // Stop the roll if over the max roll time
   useEffect(() => {
-    let timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       if (!lockedRef.current) {
         checkRollFinished(true);
       }
@@ -181,7 +181,7 @@ export function PhysicsDice({
         }
       }
     },
-    []
+    [die, listener]
   );
 
   const userData = useMemo(

@@ -5,12 +5,12 @@ import Box from "@mui/material/Box";
 
 import { PopoverTray } from "./PopoverTray";
 import { getPluginId } from "./getPluginId";
-import { RollHistoryEntry } from "../types/SavageWorldsTypes";
+import { RollHistoryEntry, PlayerRollResult } from "../types/SavageWorldsTypes";
 
 export function PopoverTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [currentPlayerMetadata, setCurrentPlayerMetadata] = useState<any>({});
+  const [currentPlayerMetadata, setCurrentPlayerMetadata] = useState<Record<string, unknown>>({});
   const [rollHistory, setRollHistory] = useState<RollHistoryEntry[]>([]);
 
   // Get current player info
@@ -30,7 +30,7 @@ export function PopoverTrays() {
           color: color,
           metadata: {}
         } as Player);
-      } catch (error) {
+      } catch {
       }
     };
     
@@ -73,7 +73,7 @@ export function PopoverTrays() {
       
       // Process rolls from all players (remote)
       players.forEach(player => {
-        const result = player.metadata[getPluginId("currentRollResult")] as any;
+        const result = player.metadata[getPluginId("currentRollResult")] as PlayerRollResult | undefined;
         if (result && result.timestamp && result.isComplete) {
           const entryId = `${player.connectionId}-${result.timestamp}`;
           
@@ -105,7 +105,7 @@ export function PopoverTrays() {
       // Process current player's roll from their metadata
       if (currentPlayer && currentPlayerMetadata) {
         // OBR.player.getMetadata() returns metadata directly
-        const currentResult = currentPlayerMetadata[getPluginId("currentRollResult")] as any;
+        const currentResult = currentPlayerMetadata[getPluginId("currentRollResult")] as PlayerRollResult | undefined;
         if (currentResult && currentResult.timestamp && currentResult.isComplete) {
           const entryId = `${currentPlayer.connectionId}-${currentResult.timestamp}`;
           

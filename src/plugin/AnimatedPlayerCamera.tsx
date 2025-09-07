@@ -62,15 +62,15 @@ function getBoundingBox(transforms: DiceTransform[]): BoundingBox {
   let maxX = Number.MIN_SAFE_INTEGER;
   let minZ = Number.MAX_SAFE_INTEGER;
   let maxZ = Number.MIN_SAFE_INTEGER;
-  for (let t of transforms) {
+  for (const t of transforms) {
     minX = t.position.x < minX ? t.position.x : minX;
     maxX = t.position.x > maxX ? t.position.x : maxX;
     minZ = t.position.z < minZ ? t.position.z : minZ;
     maxZ = t.position.z > maxZ ? t.position.z : maxZ;
   }
-  let width = maxX - minX;
-  let height = maxZ - minZ;
-  let center = { x: (minX + maxX) / 2, y: (minZ + maxZ) / 2 };
+  const width = maxX - minX;
+  const height = maxZ - minZ;
+  const center = { x: (minX + maxX) / 2, y: (minZ + maxZ) / 2 };
   return {
     min: { x: minX, y: minZ },
     max: { x: maxX, y: maxZ },

@@ -9,7 +9,7 @@ export function PlayerDiceRoll({ player }: { player?: Player }) {
     diceRoll,
     rollThrows,
     finishedRollTransforms,
-    finishedRolling,
+    finishedRolling: _finishedRolling,
     transformsRef,
     explosionDice,
   } = usePlayerDice(player);

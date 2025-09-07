@@ -1,6 +1,5 @@
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import { useTheme } from "@mui/material/styles";
 
 interface ModeSelectorProps {
   autoMode: "TRAIT" | "DAMAGE" | "STANDARD";
@@ -17,7 +16,6 @@ export function ModeSelector({
   currentMode = "AUTO",
   onModeChange 
 }: ModeSelectorProps) {
-  const theme = useTheme();
   
   // Determine effective mode based on store state
   const effectiveMode = currentMode === "AUTO" ? autoMode : currentMode;

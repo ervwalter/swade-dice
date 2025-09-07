@@ -13,14 +13,14 @@ type GLTFResult = GLTF & {
   nodes: {
     d8: THREE.Mesh;
   };
-  materials: {};
+  materials: Record<string, never>;
 };
 
-export const D8 = React.forwardRef<THREE.Group, JSX.IntrinsicElements["group"]>(
-  ({ children, ...props }, ref) => {
+export const D8 = React.forwardRef<THREE.Group, JSX.IntrinsicElements["group"]>(function D8(
+  { children, ...props }, ref) {
     const { nodes } = useGLTF(glb) as unknown as GLTFResult;
     return (
-      <group ref={ref} {...props} scale={0.1} dispose={null}>
+      <group ref={ref} {...props} scale={0.1}>
         <group name="dice">
           <mesh name="d8" castShadow receiveShadow geometry={nodes.d8.geometry}>
             {children}

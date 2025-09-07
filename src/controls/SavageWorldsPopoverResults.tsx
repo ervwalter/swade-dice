@@ -1,4 +1,3 @@
-import React from "react";
 import { SavageWorldsResultsSummary } from "./SavageWorldsResultsSummary";
 import { useSavageWorldsResults } from "../hooks/useSavageWorldsResults";
 

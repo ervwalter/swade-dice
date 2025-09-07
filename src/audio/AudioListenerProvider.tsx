@@ -1,10 +1,7 @@
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
-import React, { useContext, useEffect, useState } from "react";
-
-const AudioListenerContext = React.createContext<
-  THREE.AudioListener | undefined | null
->(undefined);
+import React, { useEffect, useState } from "react";
+import { AudioListenerContext } from "./useAudioListener";
 
 export function AudioListenerProvider({
   children,
@@ -51,15 +48,6 @@ export function AudioListenerProvider({
   );
 }
 
-export function useAudioListener() {
-  const context = useContext(AudioListenerContext);
-  if (context === undefined) {
-    throw new Error(
-      "useAudioListener must be used within a AudioListenerProvider"
-    );
-  }
-  return context;
-}
 
 AudioListenerProvider.defaultProps = {
   volume: 1,

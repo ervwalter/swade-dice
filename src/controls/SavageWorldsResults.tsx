@@ -65,7 +65,7 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
     );
   } else {
     // Damage roll - group by die type
-    const groupedByType: Record<DiceType, DieChain[]> = {} as any;
+    const groupedByType: Record<DiceType, DieChain[]> = {} as Record<DiceType, DieChain[]>;
     dieChains.forEach(chain => {
       if (!groupedByType[chain.dieType]) {
         groupedByType[chain.dieType] = [];

@@ -59,7 +59,7 @@ export default function FairnessCharts({
 
   const expectedValueYAxis = useMemo(
     () => new Array(dieCount).fill(expectedValue),
-    [expectedValue]
+    [expectedValue, dieCount]
   );
 
   // Critical value to pass the Chi-squared test at a 0.05 significance level

@@ -9,6 +9,12 @@ import { getRandomDiceThrow } from "../helpers/DiceThrower";
 import { generateDiceId } from "../helpers/generateDiceId";
 import { DiceThrow } from "../types/DiceThrow";
 import { ExplosionResult, SavageRollMode, SavageRollResult, DieChain, RollOutcome } from "../types/SavageWorldsTypes";
+
+type DieInfo = {
+  die: Die;
+  isWildDie?: boolean;
+  parentDieId?: string;
+};
 import { shouldDieExplode, MAX_EXPLOSIONS } from "../helpers/explosionHelpers";
 import { useDiceControlsStore } from "../controls/store";
 import { 
@@ -48,7 +54,7 @@ interface DiceRollState {
   /**
    * A mapping from die ID to die information for explosion tracking
    */
-  dieInfo: Record<string, { die: Die; isWildDie?: boolean; parentDieId?: string }>;
+  dieInfo: Record<string, DieInfo>;
   /**
    * List of explosion dice that need to be spawned
    */
@@ -81,12 +87,12 @@ interface DiceRollState {
   
   // Helper methods for explosion processing
   storeRollResult: (id: string, value: number, transform: DiceTransform) => void;
-  updateExplosionResult: (parentDieId: string, value: number, info: any) => void;
+  updateExplosionResult: (parentDieId: string, value: number, info: DieInfo) => void;
   canCreateExplosion: (parentDieId: string) => boolean;
-  createExplosion: (parentDieId: string, info: any) => void;
+  createExplosion: (parentDieId: string, info: DieInfo) => void;
   completeRoll: () => void;
-  createDieChains: () => any[];
-  calculateOutcomes: (dieChains: any[], modifier: number, targetNumber: number | undefined, rollMode: SavageRollMode) => any[];
+  createDieChains: () => DieChain[];
+  calculateOutcomes: (dieChains: DieChain[], modifier: number, targetNumber: number | undefined, rollMode: SavageRollMode) => RollOutcome[];
 }
 
 export const useDiceRollStore = create<DiceRollState>()(

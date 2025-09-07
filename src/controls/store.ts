@@ -58,7 +58,7 @@ const loadDiceSet = () => {
         return savedSet;
       }
     }
-  } catch (e) {
+  } catch {
   }
   
   // Default: first valid set (not Nebula or "all")
@@ -104,13 +104,13 @@ const loadResultsDetailsPinned = () => {
   try {
     const saved = localStorage.getItem("savage-worlds-results-pinned");
     return saved === "true";
-  } catch (e) {
+  } catch {
     return false;
   }
 };
 
 export const useDiceControlsStore = create<DiceControlsState>()(
-  immer((set, get) => ({
+  immer((set, _get) => ({
     diceSet: initialSet,
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
@@ -152,7 +152,7 @@ export const useDiceControlsStore = create<DiceControlsState>()(
       // Save dice set selection to localStorage
       try {
         localStorage.setItem('swade-diceSetId', diceSet.id);
-      } catch (e) {
+      } catch {
       }
     },
     resetDiceCounts(preserveMode?: boolean) {

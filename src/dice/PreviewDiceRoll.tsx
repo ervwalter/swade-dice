@@ -11,7 +11,7 @@ import { DiceThrower } from "../helpers/DiceThrower";
 import { DiceVector3 } from "../types/DiceVector3";
 import { DiceQuaternion } from "../types/DiceQuaternion";
 import { Die } from "../types/Die";
-import { useAudioListener } from "../audio/AudioListenerProvider";
+import { useAudioListener } from "../audio/useAudioListener";
 import { getNextBuffer } from "../audio/getAudioBuffer";
 import { random } from "../helpers/random";
 import { WeightClass } from "../types/WeightClass";

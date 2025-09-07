@@ -1,10 +1,10 @@
 import { useTexture } from "@react-three/drei";
 import { gltfTexture } from "../helpers/gltfTexture";
-import { MATERIAL_CONFIGS, MATERIAL_TEXTURES, MaterialConfig } from "./MaterialConfig";
+import { MATERIAL_CONFIGS, MATERIAL_TEXTURES } from "./MaterialConfig";
 
 interface BaseMaterialProps {
   materialKey: string;
-  props?: any; // Using any to avoid type conflicts between different material types
+  props?: Record<string, unknown>; // Material properties
 }
 
 export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {

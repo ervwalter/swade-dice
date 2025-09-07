@@ -25,7 +25,7 @@ export function randomPosition(): DiceVector3 {
 
 /** Adapted from https://stackoverflow.com/a/56794499 */
 export function randomRotation(): DiceQuaternion {
-  let x, y, z, u, v, w, s;
+  let x, y, z, u, v, w;
   do {
     x = random(-1, 1);
     y = random(-1, 1);
@@ -36,7 +36,7 @@ export function randomRotation(): DiceQuaternion {
     v = random(-1, 1);
     w = u * u + v * v;
   } while (w > 1);
-  s = Math.sqrt((1 - z) / w);
+  const s = Math.sqrt((1 - z) / w);
   return {
     x,
     y,

@@ -34,7 +34,7 @@ export function useSavageWorldsResults(): SavageRollResult | null {
       const regularChains = currentRollResult.dieChains.filter(c => !c.isWildDie);
       const wildChain = currentRollResult.dieChains.find(c => c.isWildDie);
       
-      let results = regularChains.map(chain => {
+      const results: RollOutcome[] = regularChains.map(chain => {
         const total = chain.total + currentModifier;
         const outcome: RollOutcome = {
           chains: [chain],

@@ -25,7 +25,7 @@ export function InteractiveDice(
     y: 0,
   });
   const { invalidate, size, camera } = useThree();
-  const clearRoll = useDiceRollStore((state) => state.clearRoll);
+  const _clearRoll = useDiceRollStore((state) => state.clearRoll);
   const finishedDice = useDiceRollStore((state) => state.finishedDice);
   
   // Check if this die is finished and should be immovable
@@ -64,7 +64,7 @@ export function InteractiveDice(
 
   useEffect(() => {
     if (dragAnchor) {
-      const handleUp = (e: PointerEvent) => {
+      const handleUp = (_e: PointerEvent) => {
         setDragAnchor(null);
       };
 

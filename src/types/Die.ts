@@ -9,6 +9,11 @@ export interface Die {
   type: DiceType;
 }
 
-export function isDie(value: any): value is Die {
-  return isPlainObject(value) && typeof value.id === "string";
+export function isDie(value: unknown): value is Die {
+  return (
+    isPlainObject(value) &&
+    typeof (value as Record<string, unknown>).id === "string" &&
+    typeof (value as Record<string, unknown>).style === "string" &&
+    typeof (value as Record<string, unknown>).type === "string"
+  );
 }

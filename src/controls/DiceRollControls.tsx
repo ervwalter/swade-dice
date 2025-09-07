@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
@@ -181,7 +181,7 @@ function DicePickedControls() {
         window.removeEventListener("pointerup", handlePointerUp);
       };
     }
-  }, [rollPressTime]);
+  }, [rollPressTime, setRollPressTime]);
 
   const hasDice = useMemo(
     () =>

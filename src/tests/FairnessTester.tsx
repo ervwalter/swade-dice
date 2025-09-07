@@ -148,7 +148,7 @@ export function FairnessTester() {
         reroll();
       }
     }
-  }, [active, rolledValues]);
+  }, [active, rolledValues, clearRoll, numberRolls, reroll]);
 
   const theme = useTheme();
 

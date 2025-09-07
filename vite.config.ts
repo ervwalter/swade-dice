@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
-// @ts-ignore
+// @ts-expect-error - path module import needed for Vite config
 import { resolve } from "path";
 import react from "@vitejs/plugin-react";
 
-declare var __dirname: string;
+declare const __dirname: string;
 
 // https://vitejs.dev/config/
 export default defineConfig({

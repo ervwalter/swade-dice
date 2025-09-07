@@ -27,7 +27,7 @@ export function SavageWorldsResultsSummaryContainer() {
   const resultsPinned = useDiceControlsStore((state) => state.resultsDetailsPinned);
   const setResultsPinned = useDiceControlsStore((state) => state.setResultsDetailsPinned);
   const resultsHovered = useDiceControlsStore((state) => state.resultsDetailsHovered);
-  const setResultsHovered = useDiceControlsStore((state) => state.setResultsDetailsHovered);
+  const _setResultsHovered = useDiceControlsStore((state) => state.setResultsDetailsHovered);
   
   // Show details if either pinned or hovered
   const showDetails = resultsPinned || resultsHovered;

@@ -38,6 +38,13 @@ export interface Dice {
   combination?: "HIGHEST" | "LOWEST" | "SUM" | "NONE";
 }
 
-export function isDice(value: any): value is Dice {
-  return isPlainObject(value) && Array.isArray(value.dice);
+export function isDice(value: unknown): value is Dice {
+  return (
+    isPlainObject(value) && 
+    Array.isArray((value as Record<string, unknown>).dice) &&
+    (
+      (value as Record<string, unknown>).combination === undefined ||
+      typeof (value as Record<string, unknown>).combination === "string"
+    )
+  );
 }

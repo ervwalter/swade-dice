@@ -9,8 +9,8 @@ type DiceMeshProps = JSX.IntrinsicElements["group"] & {
   sharp?: boolean;
 };
 
-export const DiceMesh = React.forwardRef<THREE.Group, DiceMeshProps>(
-  ({ sharp, ...props }, ref) => {
+export const DiceMesh = React.forwardRef<THREE.Group, DiceMeshProps>(function DiceMesh(
+  { sharp, ...props }, ref) {
     if (sharp) {
       return <SharpDiceMesh ref={ref} {...props} />;
     } else {

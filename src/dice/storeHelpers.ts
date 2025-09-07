@@ -1,15 +1,17 @@
-import { DieChain, RollOutcome } from "../types/SavageWorldsTypes";
+import { DieChain, RollOutcome, ExplosionResult } from "../types/SavageWorldsTypes";
 import { Die } from "../types/Die";
+import { DiceThrow } from "../types/DiceThrow";
+import { DiceType } from "../types/DiceType";
 import { getRandomDiceThrow } from "../helpers/DiceThrower";
-import { shouldDieExplode, MAX_EXPLOSIONS } from "../helpers/explosionHelpers";
+import { } from "../helpers/explosionHelpers";
 import { DEFAULT_DICE_STYLE, EXPLOSION_SPEED_MULTIPLIER } from "../constants/savageWorlds";
 
 // Helper function to update explosion results
 export function updateExplosionResults(
-  explosionResults: Record<string, any>,
+  explosionResults: Record<string, ExplosionResult>,
   parentDieId: string,
   value: number,
-  dieType: string,
+  dieType: DiceType,
   isWildDie?: boolean
 ) {
   if (!explosionResults[parentDieId]) {
@@ -32,8 +34,8 @@ export function createExplosionDie(
   parentDieId: string,
   explosionCount: number,
   originalDie: Die,
-  dieIndex: number
-): { die: Die; throw: any } {
+  _dieIndex: number
+): { die: Die; throw: DiceThrow } {
   const explosionId = `${parentDieId}_explosion_${explosionCount + 1}`;
   const newDie: Die = {
     id: explosionId,
@@ -131,7 +133,7 @@ export function processMultiDieTraitTest(
   targetNumber?: number
 ): RollOutcome[] {
   // Create initial results for each regular die
-  let results = regularChains.map(chain => 
+  const results: RollOutcome[] = regularChains.map(chain => 
     createRollOutcome([chain], modifier, false, targetNumber)
   );
   

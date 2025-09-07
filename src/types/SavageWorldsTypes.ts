@@ -68,14 +68,23 @@ export interface ExplosionResult {
 }
 
 // Plugin-specific types for OBR integration
-export interface PlayerRollResult extends SavageRollResult {
-  // Additional fields that might be added by the plugin layer
+export type PlayerRollResult = SavageRollResult;
+
+// Player display info interface compatible with OBR SDK to avoid circular dependency
+export interface PlayerDisplayInfo {
+  id: string;
+  name: string;
+  color: string;
+  connectionId: string;
+  role: "GM" | "PLAYER";
+  syncView: boolean;
+  metadata: Record<string, unknown>;
 }
 
 export interface RollHistoryEntry {
   id: string;
   playerId: string;
-  player: any; // Import from OBR SDK would create circular dependency, keeping as any
+  player: PlayerDisplayInfo;
   result: PlayerRollResult;
   timestamp: number;
   addedAt: number;
