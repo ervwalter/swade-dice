@@ -69,3 +69,4 @@ The application implements Savage Worlds Adventure Edition rules:
 - **State Management**: Zustand with Immer middleware
 - **Build Tool**: Vite with React plugin
 - **Platform Integration**: @owlbear-rodeo/sdk
+- OBR documentation is in ../owlbear-scrape/out/md/

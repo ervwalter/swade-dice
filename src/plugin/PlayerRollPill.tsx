@@ -34,6 +34,23 @@ export function PlayerRollPill({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Calculate the best text color (white or black) based on background color
+  const getContrastColor = (hexColor: string): string => {
+    // Remove # if present
+    const hex = hexColor.replace('#', '');
+    
+    // Parse RGB values
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Calculate luminance using the standard formula
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return white for dark colors, black for light colors
+    return luminance > 0.5 ? 'black' : 'white';
+  };
+
   return (
     <Box
       component="div"
@@ -55,7 +72,7 @@ export function PlayerRollPill({
         component="div"
         sx={{
           backgroundColor: player.color,
-          color: "white",
+          color: getContrastColor(player.color),
           px: 2,
           py: 0.5,
           fontSize: "0.75rem",
