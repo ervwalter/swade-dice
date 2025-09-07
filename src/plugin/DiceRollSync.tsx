@@ -94,6 +94,7 @@ export function DiceRollSync() {
             result: currentResult,
           };
           
+          console.log("🎲 Broadcasting roll (store subscription):", broadcast);
           OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
             destination: "ALL" // Include self in broadcast
           });
@@ -102,19 +103,19 @@ export function DiceRollSync() {
     [currentResult, currentPlayer]
   );
 
-  // Also broadcast when currentResult changes (for live updates during explosions)
+  // Broadcast when currentResult changes AND roll is complete
   useEffect(() => {
     const rollState = useDiceRollStore.getState();
-    const hasCompletedRoll = rollState.roll && rollState.currentRollResult;
+    const isHidden = rollState.roll?.hidden;
     
-    if (hasCompletedRoll && currentResult && currentPlayer && !rollState.roll?.hidden) {
-      // Broadcast updated result
+    if (currentResult && currentResult.isComplete && currentPlayer && !isHidden) {
       const broadcast: RollBroadcast = {
         playerId: currentPlayer.connectionId,
         player: currentPlayer,
         result: currentResult,
       };
       
+      console.log("🎲 Broadcasting roll (result change):", broadcast);
       OBR.broadcast.sendMessage(getPluginId("roll-result"), broadcast, {
         destination: "ALL"
       });
