@@ -2,13 +2,13 @@
 title: Savage Worlds Dice
 description: Beautiful 3D dice extension for Savage Worlds Adventure Edition (SWADE)
 author: Erv Walter
-image: https://swade-dice-jqyur.ondigitalocean.app/docs/header.png
-icon: https://swade-dice-jqyur.ondigitalocean.app/logo.png
+image: https://swade-dice.ewal.app/docs/header.png
+icon: https://swade-dice.ewal.app/logo.png
 tags:
   - community
   - dice
   - savage-worlds
-manifest: https://swade-dice-jqyur.ondigitalocean.app/manifest.json
+manifest: https://swade-dice.ewal.app/manifest.json
 learn-more: https://github.com/ervwalter/swade-dice
 ---
 
@@ -20,7 +20,7 @@ Beautiful 3D dice extension designed specifically for Savage Worlds Adventure Ed
 
 Add dice to your tray from the available SWADE dice types (d4, d6, d8, d10, d12). Press and hold on the dice tray to charge up your throw, then release to roll.
 
-![roll interface](https://swade-dice-jqyur.ondigitalocean.app/docs/rolls.png)
+![roll interface](https://swade-dice.ewal.app/docs/rolls.png)
 
 The extension uses realistic 3D physics simulation to determine results, with beautiful animations and sound effects.
 
@@ -48,13 +48,13 @@ The extension uses realistic 3D physics simulation to determine results, with be
 - Success/failure status and raise count for trait tests
 - Shows which die (trait or wild) was used for the final result
 
-![roll details](https://swade-dice-jqyur.ondigitalocean.app/docs/roll-details.png)
+![roll details](https://swade-dice.ewal.app/docs/roll-details.png)
 
 **Roll Sharing & History**
 
 When you make a roll, the results are automatically shared with other players in your session in real-time. The extension shows a bottom tray with recent rolls from all players, making it easy to see what everyone rolled.
 
-![player roll](https://swade-dice-jqyur.ondigitalocean.app/docs/player.png)
+![player roll](https://swade-dice.ewal.app/docs/player.png)
 
 **Local Roll History**
 
@@ -68,7 +68,7 @@ Make rolls privately so only you can see the results.
 
 Quick access to recent rolls for re-rolling or referencing past results.
 
-![recent rolls](https://swade-dice-jqyur.ondigitalocean.app/docs/recent.png)
+![recent rolls](https://swade-dice.ewal.app/docs/recent.png)
 
 **Fairness Testing**
 
@@ -76,4 +76,4 @@ Built-in distribution analysis tools help verify the randomness and fairness of 
 
 **Support**
 
-For questions or issues with this extension, visit the [GitHub repository](https://github.com/ervwalter/swade-dice) or try the [live demo](https://swade-dice-jqyur.ondigitalocean.app/).
+For questions or issues with this extension, visit the [GitHub repository](https://github.com/ervwalter/swade-dice) or try the [live demo](https://swade-dice.ewal.app/).
