@@ -4,6 +4,16 @@
 
 ![Example](public/docs/header.png)
 
+## Add to Owlbear Rodeo
+
+To add this extension to your Owlbear Rodeo room:
+
+1. Open your Owlbear Rodeo room
+2. Click the **Extensions** menu in the settings menu
+3. Press the **Add Custom Extension** button
+4. Enter this manifest URL: `https://swade-dice.ewal.app/manifest.json`
+5. Click **Add**
+
 ## Features
 
 **SWADE Mechanics**
