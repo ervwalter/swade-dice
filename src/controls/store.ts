@@ -220,10 +220,11 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     },
     setTargetNumber(tn) {
       set((state) => {
-        state.targetNumber = tn;
+        // Clamp target number between 1 and 99
+        state.targetNumber = Math.max(1, Math.min(99, tn));
         // Persist to localStorage
         try {
-          localStorage.setItem('swade-targetNumber', tn.toString());
+          localStorage.setItem('swade-targetNumber', state.targetNumber.toString());
         } catch {}
       });
     },

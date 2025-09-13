@@ -28,10 +28,26 @@ export function TargetNumber() {
                     (hasActiveRoll && isTraitTest);
   
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (isEnabled) {
+    if (!isEnabled) return;
+
+    // Check if this is a touch event or shift+click - open dialog
+    const isTouch = event.nativeEvent && 'touches' in event.nativeEvent;
+    if (isTouch || event.shiftKey) {
       setAnchorEl(event.currentTarget);
       setCustomValue(targetNumber.toString());
+      return;
     }
+
+    // Regular left click - increment by 1
+    setTargetNumber(targetNumber + 1);
+  }
+
+  function handleContextMenu(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault(); // Prevent browser context menu
+    if (!isEnabled) return;
+
+    // Right click - decrement by 1
+    setTargetNumber(targetNumber - 1);
   }
   
   function handleClose() {
@@ -50,7 +66,7 @@ export function TargetNumber() {
   
   function handleCustomSubmit() {
     const value = parseInt(customValue, 10);
-    if (!isNaN(value) && value > 0) {
+    if (!isNaN(value) && value >= 1 && value <= 99) {
       setTargetNumber(value);
       handleClose();
       // Don't clear roll - TN change will automatically update the results display
@@ -67,6 +83,7 @@ export function TargetNumber() {
         <span>
           <IconButton
             onClick={handleClick}
+            onContextMenu={handleContextMenu}
             disabled={!isEnabled}
             aria-controls={open ? "target-menu" : undefined}
             aria-haspopup="true"
@@ -101,7 +118,7 @@ export function TargetNumber() {
           horizontal: "left",
         }}
       >
-        <Stack sx={{ p: 2, minWidth: 200 }}>
+        <Stack sx={{ p: 2, minWidth: 250 }}>
           <Typography variant="subtitle2" gutterBottom>
             Quick Select:
           </Typography>
@@ -126,7 +143,7 @@ export function TargetNumber() {
               type="number"
               value={customValue}
               onChange={handleCustomChange}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCustomSubmit();
                 }
