@@ -1,10 +1,11 @@
 {
   "name": "Savage Worlds Dice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 1,
-  "author": "Owlbear Rodeo",
+  "author": "Erv Walter",
   "icon": "/logo.png",
-  "description": "Beautiful 3D dice extension for Savage Worlds Adventure Edition (SWADE)",
+  "homepage_url": "https://github.com/ervwalter/swade-dice",
+  "description": "Dice extension for Savage Worlds Adventure Edition (SWADE)",
   "action": {
     "title": "Savage Worlds Dice",
     "icon": "/icon.svg",
