@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
@@ -27,20 +27,55 @@ export function ModifierControl({ config }: ModifierControlProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [customValue, setCustomValue] = useState(modifier.toString());
   const open = Boolean(anchorEl);
+  type PointerType = "mouse" | "pen" | "touch" | "unknown";
+  const lastPointerTypeRef = useRef<PointerType>("mouse");
+
+  function openDialog(button: HTMLElement) {
+    setAnchorEl(button);
+    setCustomValue(modifier.toString());
+  }
+
+  function updatePointerType(pointerType: string | undefined) {
+    if (pointerType === "mouse" || pointerType === "pen" || pointerType === "touch") {
+      lastPointerTypeRef.current = pointerType;
+    } else {
+      lastPointerTypeRef.current = "unknown";
+    }
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+    if (!isEnabled) return;
+    updatePointerType(event.pointerType);
+  }
+
+  function handleTouchStart() {
+    if (!isEnabled) return;
+    lastPointerTypeRef.current = "touch";
+  }
+
+  function shouldOpenFromPointer(pointerType: string | undefined, shiftKey: boolean) {
+    if (shiftKey) return true;
+    const resolved = pointerType || lastPointerTypeRef.current;
+    return resolved === "touch" || resolved === "pen";
+  }
 
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    // Check if this is a touch event or shift+click - open dialog
-    const isTouch = event.nativeEvent && 'touches' in event.nativeEvent;
-    if (isTouch || event.shiftKey) {
-      setAnchorEl(event.currentTarget);
-      setCustomValue(modifier.toString());
+    if (!isEnabled) return;
+
+    type PointerLikeMouseEvent = MouseEvent & { pointerType?: string };
+    const nativeEvent = event.nativeEvent as PointerLikeMouseEvent;
+    const nativePointerType = typeof nativeEvent.pointerType === "string" ? nativeEvent.pointerType : undefined;
+    updatePointerType(nativePointerType);
+
+    if (shouldOpenFromPointer(nativePointerType, event.shiftKey)) {
+      event.preventDefault();
+      openDialog(event.currentTarget);
+      lastPointerTypeRef.current = "mouse";
       return;
     }
-    
+
     // Regular left click - increment by 1
-    if (isEnabled) {
-      setModifier(modifier + 1);
-    }
+    setModifier(modifier + 1);
   }
 
   function handleContextMenu(event: React.MouseEvent<HTMLButtonElement>) {
@@ -85,6 +120,8 @@ export function ModifierControl({ config }: ModifierControlProps) {
         <span>
           <IconButton
             onClick={handleClick}
+            onPointerDown={handlePointerDown}
+            onTouchStart={handleTouchStart}
             onContextMenu={handleContextMenu}
             aria-controls={open ? menuId : undefined}
             aria-haspopup="true"

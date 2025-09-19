@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
@@ -19,6 +19,8 @@ export function TargetNumber() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [customValue, setCustomValue] = useState(targetNumber.toString());
   const open = Boolean(anchorEl);
+  type PointerType = "mouse" | "pen" | "touch" | "unknown";
+  const lastPointerTypeRef = useRef<PointerType>("mouse");
   
   // Enabled when:
   // 1. No dice selected (0 dice) AND no active roll - setting for next roll
@@ -27,14 +29,47 @@ export function TargetNumber() {
   const isEnabled = (!hasActiveRoll && (currentSelectionCount === 0 || isTraitTest)) || 
                     (hasActiveRoll && isTraitTest);
   
+  function openDialog(button: HTMLElement) {
+    setAnchorEl(button);
+    setCustomValue(targetNumber.toString());
+  }
+
+  function updatePointerType(pointerType: string | undefined) {
+    if (pointerType === "mouse" || pointerType === "pen" || pointerType === "touch") {
+      lastPointerTypeRef.current = pointerType;
+    } else {
+      lastPointerTypeRef.current = "unknown";
+    }
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+    if (!isEnabled) return;
+    updatePointerType(event.pointerType);
+  }
+
+  function handleTouchStart() {
+    if (!isEnabled) return;
+    lastPointerTypeRef.current = "touch";
+  }
+
+  function shouldOpenFromPointer(pointerType: string | undefined, shiftKey: boolean) {
+    if (shiftKey) return true;
+    const resolved = pointerType || lastPointerTypeRef.current;
+    return resolved === "touch" || resolved === "pen";
+  }
+
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
 
-    // Check if this is a touch event or shift+click - open dialog
-    const isTouch = event.nativeEvent && 'touches' in event.nativeEvent;
-    if (isTouch || event.shiftKey) {
-      setAnchorEl(event.currentTarget);
-      setCustomValue(targetNumber.toString());
+    type PointerLikeMouseEvent = MouseEvent & { pointerType?: string };
+    const nativeEvent = event.nativeEvent as PointerLikeMouseEvent;
+    const nativePointerType = typeof nativeEvent.pointerType === "string" ? nativeEvent.pointerType : undefined;
+    updatePointerType(nativePointerType);
+
+    if (shouldOpenFromPointer(nativePointerType, event.shiftKey)) {
+      event.preventDefault();
+      openDialog(event.currentTarget);
+      lastPointerTypeRef.current = "mouse";
       return;
     }
 
@@ -83,6 +118,8 @@ export function TargetNumber() {
         <span>
           <IconButton
             onClick={handleClick}
+            onPointerDown={handlePointerDown}
+            onTouchStart={handleTouchStart}
             onContextMenu={handleContextMenu}
             disabled={!isEnabled}
             aria-controls={open ? "target-menu" : undefined}
