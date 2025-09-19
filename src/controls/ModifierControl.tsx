@@ -27,36 +27,33 @@ export function ModifierControl({ config }: ModifierControlProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [customValue, setCustomValue] = useState(modifier.toString());
   const open = Boolean(anchorEl);
-  type PointerType = "mouse" | "pen" | "touch" | "unknown";
-  const lastPointerTypeRef = useRef<PointerType>("mouse");
+  const suppressNextClickRef = useRef(false);
 
   function openDialog(button: HTMLElement) {
     setAnchorEl(button);
     setCustomValue(modifier.toString());
   }
 
-  function updatePointerType(pointerType: string | undefined) {
-    if (pointerType === "mouse" || pointerType === "pen" || pointerType === "touch") {
-      lastPointerTypeRef.current = pointerType;
-    } else {
-      lastPointerTypeRef.current = "unknown";
-    }
+  function isTouchLike(pointerType: string | undefined) {
+    return pointerType === "touch" || pointerType === "pen";
   }
 
   function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
-    updatePointerType(event.pointerType);
+
+    if (isTouchLike(event.pointerType)) {
+      suppressNextClickRef.current = true;
+      openDialog(event.currentTarget);
+      event.preventDefault();
+    }
   }
 
-  function handleTouchStart() {
+  function handleTouchStart(event: React.TouchEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
-    lastPointerTypeRef.current = "touch";
-  }
 
-  function shouldOpenFromPointer(pointerType: string | undefined, shiftKey: boolean) {
-    if (shiftKey) return true;
-    const resolved = pointerType || lastPointerTypeRef.current;
-    return resolved === "touch" || resolved === "pen";
+    suppressNextClickRef.current = true;
+    openDialog(event.currentTarget);
+    event.preventDefault();
   }
 
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
@@ -65,12 +62,15 @@ export function ModifierControl({ config }: ModifierControlProps) {
     type PointerLikeMouseEvent = MouseEvent & { pointerType?: string };
     const nativeEvent = event.nativeEvent as PointerLikeMouseEvent;
     const nativePointerType = typeof nativeEvent.pointerType === "string" ? nativeEvent.pointerType : undefined;
-    updatePointerType(nativePointerType);
 
-    if (shouldOpenFromPointer(nativePointerType, event.shiftKey)) {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
       event.preventDefault();
+      return;
+    }
+
+    if (event.shiftKey || isTouchLike(nativePointerType)) {
       openDialog(event.currentTarget);
-      lastPointerTypeRef.current = "mouse";
       return;
     }
 
