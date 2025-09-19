@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
@@ -19,7 +19,6 @@ export function TargetNumber() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [customValue, setCustomValue] = useState(targetNumber.toString());
   const open = Boolean(anchorEl);
-  const suppressNextClickRef = useRef(false);
   
   // Enabled when:
   // 1. No dice selected (0 dice) AND no active roll - setting for next roll
@@ -33,42 +32,20 @@ export function TargetNumber() {
     setCustomValue(targetNumber.toString());
   }
 
-  function isTouchLike(pointerType: string | undefined) {
-    return pointerType === "touch" || pointerType === "pen";
-  }
-
   function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
 
-    if (isTouchLike(event.pointerType)) {
-      suppressNextClickRef.current = true;
+    // Open dialog immediately for touch and pen input
+    if (event.pointerType === "touch" || event.pointerType === "pen") {
       openDialog(event.currentTarget);
       event.preventDefault();
     }
   }
 
-  function handleTouchStart(event: React.TouchEvent<HTMLButtonElement>) {
-    if (!isEnabled) return;
-
-    suppressNextClickRef.current = true;
-    openDialog(event.currentTarget);
-    event.preventDefault();
-  }
-
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
 
-    type PointerLikeMouseEvent = MouseEvent & { pointerType?: string };
-    const nativeEvent = event.nativeEvent as PointerLikeMouseEvent;
-    const nativePointerType = typeof nativeEvent.pointerType === "string" ? nativeEvent.pointerType : undefined;
-
-    if (suppressNextClickRef.current) {
-      suppressNextClickRef.current = false;
-      event.preventDefault();
-      return;
-    }
-
-    if (event.shiftKey || isTouchLike(nativePointerType)) {
+    if (event.shiftKey) {
       openDialog(event.currentTarget);
       return;
     }
@@ -119,7 +96,6 @@ export function TargetNumber() {
           <IconButton
             onClick={handleClick}
             onPointerDown={handlePointerDown}
-            onTouchStart={handleTouchStart}
             onContextMenu={handleContextMenu}
             disabled={!isEnabled}
             aria-controls={open ? "target-menu" : undefined}
@@ -130,6 +106,7 @@ export function TargetNumber() {
               fontWeight: "bold",
               color: isEnabled ? "text.primary" : "text.secondary",
               opacity: isEnabled ? 1 : 0.3,
+              touchAction: "none", // Prevent touch conflicts with pointer events
               "&:disabled": {
                 color: "text.secondary",
               },
@@ -175,9 +152,22 @@ export function TargetNumber() {
             Custom:
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                const newVal = Math.max(1, (parseInt(customValue) || 1) - 1);
+                setCustomValue(newVal.toString());
+                setTargetNumber(newVal);
+              }}
+              sx={{ minWidth: "32px", padding: "4px" }}
+            >
+              −
+            </Button>
             <TextField
               size="small"
               type="number"
+              inputMode="numeric"
               value={customValue}
               onChange={handleCustomChange}
               onKeyDown={(e) => {
@@ -185,15 +175,24 @@ export function TargetNumber() {
                   handleCustomSubmit();
                 }
               }}
-              inputProps={{ min: 1, max: 99 }}
-              sx={{ width: 100 }}
+              inputProps={{
+                style: { textAlign: 'center' },
+                min: 1,
+                max: 99
+              }}
+              sx={{ width: 80 }}
             />
-            <Button 
-              variant="contained" 
+            <Button
+              variant="outlined"
               size="small"
-              onClick={handleCustomSubmit}
+              onClick={() => {
+                const newVal = Math.min(99, (parseInt(customValue) || 1) + 1);
+                setCustomValue(newVal.toString());
+                setTargetNumber(newVal);
+              }}
+              sx={{ minWidth: "32px", padding: "4px" }}
             >
-              Set
+              +
             </Button>
           </Stack>
         </Stack>

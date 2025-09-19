@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
@@ -27,49 +27,26 @@ export function ModifierControl({ config }: ModifierControlProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [customValue, setCustomValue] = useState(modifier.toString());
   const open = Boolean(anchorEl);
-  const suppressNextClickRef = useRef(false);
 
   function openDialog(button: HTMLElement) {
     setAnchorEl(button);
     setCustomValue(modifier.toString());
   }
 
-  function isTouchLike(pointerType: string | undefined) {
-    return pointerType === "touch" || pointerType === "pen";
-  }
-
   function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
 
-    if (isTouchLike(event.pointerType)) {
-      suppressNextClickRef.current = true;
+    // Open dialog immediately for touch and pen input
+    if (event.pointerType === "touch" || event.pointerType === "pen") {
       openDialog(event.currentTarget);
       event.preventDefault();
     }
   }
 
-  function handleTouchStart(event: React.TouchEvent<HTMLButtonElement>) {
-    if (!isEnabled) return;
-
-    suppressNextClickRef.current = true;
-    openDialog(event.currentTarget);
-    event.preventDefault();
-  }
-
   function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (!isEnabled) return;
 
-    type PointerLikeMouseEvent = MouseEvent & { pointerType?: string };
-    const nativeEvent = event.nativeEvent as PointerLikeMouseEvent;
-    const nativePointerType = typeof nativeEvent.pointerType === "string" ? nativeEvent.pointerType : undefined;
-
-    if (suppressNextClickRef.current) {
-      suppressNextClickRef.current = false;
-      event.preventDefault();
-      return;
-    }
-
-    if (event.shiftKey || isTouchLike(nativePointerType)) {
+    if (event.shiftKey) {
       openDialog(event.currentTarget);
       return;
     }
@@ -121,7 +98,6 @@ export function ModifierControl({ config }: ModifierControlProps) {
           <IconButton
             onClick={handleClick}
             onPointerDown={handlePointerDown}
-            onTouchStart={handleTouchStart}
             onContextMenu={handleContextMenu}
             aria-controls={open ? menuId : undefined}
             aria-haspopup="true"
@@ -134,6 +110,7 @@ export function ModifierControl({ config }: ModifierControlProps) {
               flexDirection: "row",
               gap: 0.5,
               lineHeight: 1,
+              touchAction: "none", // Prevent touch conflicts with pointer events
               "&:disabled": {
                 color: "text.secondary",
               },
@@ -210,6 +187,7 @@ export function ModifierControl({ config }: ModifierControlProps) {
             <TextField
               size="small"
               type="number"
+              inputMode="numeric"
               value={customValue}
               onChange={handleCustomChange}
               onKeyDown={(e) => {
@@ -217,10 +195,10 @@ export function ModifierControl({ config }: ModifierControlProps) {
                   handleCustomSubmit();
                 }
               }}
-              inputProps={{ 
+              inputProps={{
                 style: { textAlign: 'center' },
-                min: -99, 
-                max: 99 
+                min: -99,
+                max: 99
               }}
               sx={{ width: 80 }}
             />
