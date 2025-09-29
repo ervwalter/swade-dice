@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { SavageRollResult, RollOutcome } from "../types/SavageWorldsTypes";
+import { getCriticalFailureStatus } from "../helpers/criticalFailure";
 
 interface SavageWorldsResultsSummaryProps {
   result: SavageRollResult | null;
@@ -154,6 +155,23 @@ export function SavageWorldsResultsSummary({
                     ) : null}
                   </>
                 )}
+                {/* Add critical failure indicator */}
+                {!outcome.success && (() => {
+                  const critStatus = getCriticalFailureStatus(result, index);
+                  if (critStatus.isCritical || critStatus.isPossible) {
+                    const color = critStatus.isCritical ? "#f44336" : "#ff9800";
+                    return (
+                      <span style={{ 
+                        color: color, 
+                        fontWeight: "bold",
+                        marginLeft: "0.2em"
+                      }}>
+                        {critStatus.isCritical ? "!!" : "??"}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </span>
             </span>
           ))}
@@ -190,13 +208,31 @@ export function SavageWorldsResultsSummary({
                   ) : (
                     <span style={{ color: errorColor }}>✗</span>
                   )}
-                  {outcome.raises && outcome.raises > 0 ? (
-                    <span style={{ color: warningColor, fontWeight: 200}}>{''}
-                      {"⬆︎".repeat(Math.min(outcome.raises, 3))}
-                    </span>
-                  ) : null}
-                </>
-              )}
+                    {outcome.raises && outcome.raises > 0 ? (
+                      <span style={{ color: warningColor, fontWeight: 200}}>{''}
+                        {"⬆︎".repeat(Math.min(outcome.raises, 3))}
+                      </span>
+                    ) : null}
+                  </>
+                )}
+                {/* Add critical failure indicator for multi-line */}
+                {!outcome.success && (() => {
+                  const critStatus = getCriticalFailureStatus(result, index);
+                  if (critStatus.isCritical || critStatus.isPossible) {
+                    const color = critStatus.isCritical ? "#f44336" : "#ff9800";
+                    const text = critStatus.isCritical ? "!! CRIT FAIL" : "?? POSSIBLE CRIT";
+                    return (
+                      <span style={{ 
+                        color: color, 
+                        marginLeft: "0.5em",
+                        fontWeight: 500
+                      }}>
+                        {text}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
             </span>
           </Typography>
         ))}

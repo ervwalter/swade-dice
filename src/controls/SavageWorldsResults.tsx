@@ -6,6 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { getMaxValue } from "../helpers/explosionDisplay";
 import { SavageRollResult, DieChain } from "../types/SavageWorldsTypes";
 import { DiceType } from "../types/DiceType";
+import { getCriticalFailureStatus, formatCriticalIndicator } from "../helpers/criticalFailure";
 
 interface SavageWorldsResultsProps {
   result: SavageRollResult;
@@ -135,6 +136,16 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
                     <Typography variant="body2" color="#f44336">
                       Failed vs TN {targetNumber}
                     </Typography>
+                    {(() => {
+                      const critStatus = getCriticalFailureStatus(result, index);
+                      const indicator = formatCriticalIndicator(critStatus, true);
+                      if (!indicator) return null;
+                      return (
+                        <Typography variant="body2" sx={{ color: indicator.color, fontWeight: "bold", ml: 0.5 }}>
+                          {critStatus.isCritical ? "!!" : "??"} {indicator.text}
+                        </Typography>
+                      );
+                    })()}
                   </>
                 )
               )}
@@ -162,6 +173,16 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
                 <Typography variant="body2" color="#f44336">
                   Failed vs TN {targetNumber}
                 </Typography>
+                {(() => {
+                  const critStatus = getCriticalFailureStatus(result, 0);
+                  const indicator = formatCriticalIndicator(critStatus, true);
+                  if (!indicator) return null;
+                  return (
+                    <Typography variant="body2" sx={{ color: indicator.color, fontWeight: "bold", ml: 1 }}>
+                      {critStatus.isCritical ? "!!" : "??"} {indicator.text}
+                    </Typography>
+                  );
+                })()}
               </Stack>
             )
           )}

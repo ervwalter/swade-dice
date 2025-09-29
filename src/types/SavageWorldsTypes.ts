@@ -21,6 +21,9 @@ export interface RollOutcome {
   success?: boolean;      // vs target number
   raises?: number;        // Number of raises
   replacedByWild?: boolean;  // For trait tests - was worst die replaced by wild
+  criticalFailure?: boolean;  // True if this is a critical failure
+  possibleCriticalFailure?: boolean;  // True if this might be a critical failure (single trait die with 1, no wild die)
+  criticalFailureReason?: string;  // Explanation of why it's a critical failure
 }
 
 /**
