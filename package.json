@@ -22,7 +22,7 @@
     "@react-spring/three": "^10.0.1",
     "@react-three/drei": "^9.88.17",
     "@react-three/fiber": "^8.15.19",
-    "@react-three/rapier": "^1.4.0",
+    "@react-three/rapier": "^2.0.0",
     "@types/uuid": "^10.0.0",
     "immer": "^10.1.1",
     "is-plain-object": "^5.0.0",
