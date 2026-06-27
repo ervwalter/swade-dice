@@ -1,4 +1,5 @@
 import { Physics } from "@react-three/rapier";
+import { ThreeElements } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
@@ -36,7 +37,7 @@ export function DiceRoll({
     DiceTransform | null
   > | null>;
   /** Override to provide a custom Dice component  */
-  Dice: React.FC<JSX.IntrinsicElements["group"] & { die: Die }>;
+  Dice: React.FC<ThreeElements["group"] & { die: Die }>;
 }) {
   const allowPhysicsDebug = useDebugStore((state) => state.allowPhysicsDebug);
 

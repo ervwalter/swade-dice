@@ -1,4 +1,5 @@
 import { useTexture } from "@react-three/drei";
+import { ThreeElements } from "@react-three/fiber";
 
 import albedo from "./albedo.jpg";
 import orm from "./orm.jpg";
@@ -6,7 +7,7 @@ import normal from "./normal.jpg";
 import { gltfTexture } from "../../helpers/gltfTexture";
 
 export function TrayMaterial(
-  props: JSX.IntrinsicElements["meshStandardMaterial"]
+  props: ThreeElements["meshStandardMaterial"]
 ) {
   const [albedoMap, ormMap, normalMap] = useTexture(
     [albedo, orm, normal],

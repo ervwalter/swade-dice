@@ -60,7 +60,7 @@ export function RollHistoryTray() {
   }, []);
 
   return (
-    <Box component="div" width="auto">
+    <Box component="div" sx={{ width: "auto" }}>
       <RollHistoryPanel
         rollHistory={rollHistory}
       />

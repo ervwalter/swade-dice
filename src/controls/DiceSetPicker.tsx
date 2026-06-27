@@ -47,8 +47,8 @@ export function DiceSetPicker() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "dice-set-button",
+        slotProps={{
+          list: { "aria-labelledby": "dice-set-button" },
         }}
         anchorOrigin={{
           vertical: "bottom",
@@ -61,7 +61,7 @@ export function DiceSetPicker() {
         sx={{ my: 1 }}
         marginThreshold={0}
       >
-        <Stack gap={1} alignItems="center" p="2px">
+        <Stack sx={{ gap: 1, alignItems: "center", p: "2px" }}>
           {diceSets
             .filter((set) => 
               // Exclude Nebula (reserved for wild die) and "all" (multiple types not needed in Savage Worlds)

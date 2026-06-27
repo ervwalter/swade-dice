@@ -16,7 +16,7 @@ export function TopControls() {
         minHeight: "fit-content",
       }}
     >
-      <Stack direction="row" gap={1} alignItems="center" justifyContent="center" flexWrap="nowrap" px={2}>
+      <Stack direction="row" sx={{ gap: 1, alignItems: "center", justifyContent: "center", flexWrap: "nowrap", px: 2 }}>
         <WildDieToggle />
         <Divider orientation="vertical" flexItem />
         <TargetNumber />

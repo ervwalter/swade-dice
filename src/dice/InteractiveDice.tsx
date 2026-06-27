@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSpring, animated, config } from "@react-spring/three";
-import { ThreeEvent, useThree } from "@react-three/fiber";
+import { ThreeElements, ThreeEvent, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import { Die } from "../types/Die";
@@ -14,7 +14,7 @@ const pointer = new THREE.Vector2();
 
 /** Custom dice can be dragged but not re-rolled in Savage Worlds */
 export function InteractiveDice(
-  props: JSX.IntrinsicElements["group"] & {
+  props: ThreeElements["group"] & {
     die: Die;
   }
 ) {

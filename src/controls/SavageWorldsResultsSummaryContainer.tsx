@@ -44,9 +44,11 @@ export function SavageWorldsResultsSummaryContainer() {
       >
       <Stack
         direction="row"
-        justifyContent="space-between"
-        width="100%"
-        alignItems="center"
+        sx={{
+          justifyContent: "space-between",
+          width: "100%",
+          alignItems: "center",
+        }}
       >
         <Tooltip title="Reroll">
           <IconButton

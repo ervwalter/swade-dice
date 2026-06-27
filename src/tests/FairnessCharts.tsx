@@ -8,7 +8,7 @@ import { ChartsTooltip } from "@mui/x-charts/ChartsTooltip";
 import { ChartsXAxis } from "@mui/x-charts/ChartsXAxis";
 import { ChartsYAxis } from "@mui/x-charts/ChartsYAxis";
 import { LinePlot } from "@mui/x-charts/LineChart";
-import { ResponsiveChartContainer } from "@mui/x-charts/ResponsiveChartContainer";
+import { ChartsContainer } from "@mui/x-charts/ChartsContainer";
 import { useMemo } from "react";
 import { Die } from "../types/Die";
 
@@ -94,13 +94,12 @@ export default function FairnessCharts({
   const isFair = sumSquaredError < criticalValue;
 
   return (
-    <Stack width="100%" gap={1}>
+    <Stack sx={{ width: "100%", gap: 1 }}>
       <Tooltip title="Sum of Squares Error">
         <Typography
           variant="caption"
-          textAlign="center"
           color={isFair ? "success.main" : "warning.main"}
-          my={1}
+          sx={{ textAlign: "center", my: 1 }}
         >
           SSE: {sumSquaredError.toFixed(2)}{" "}
           {isFair && (
@@ -111,18 +110,20 @@ export default function FairnessCharts({
           )}
         </Typography>
       </Tooltip>
-      <ResponsiveChartContainer
+      <ChartsContainer
         xAxis={[
           {
             id: "roll-values",
             data: xAxis,
             scaleType: "band",
+            position: "bottom",
           },
         ]}
         yAxis={[
           {
             id: "number-rolls",
             max: expectedValue + expectedValue * 0.1,
+            position: "left",
           },
         ]}
         series={[
@@ -146,17 +147,15 @@ export default function FairnessCharts({
           label={`${die.style.slice(0, 1)}${die.style.slice(1).toLowerCase()} ${
             die.type
           } Value`}
-          position="bottom"
           axisId="roll-values"
         />
         <ChartsYAxis
           label="No. of Rolls"
-          position="left"
           axisId="number-rolls"
         />
         <ChartsAxisHighlight x="band" />
-        <ChartsTooltip slotProps={{ popper: {} }} />
-      </ResponsiveChartContainer>
+        <ChartsTooltip />
+      </ChartsContainer>
     </Stack>
   );
 }

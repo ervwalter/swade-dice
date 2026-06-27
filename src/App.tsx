@@ -12,12 +12,12 @@ import { RollHistoryTray } from "./plugin/RollHistoryTray";
 export function App() {
   return (
     <Container disableGutters maxWidth="md">
-      <Stack direction="column" height="100vh" gap={0.5}>
+      <Stack direction="column" sx={{ height: "100vh", gap: 0.5 }}>
         {/* Top row with settings */}
         <TopControls />
         
         {/* Main content area */}
-        <Box component="div" display="flex" flex={1} gap={0.5} overflow="hidden">
+        <Box component="div" sx={{ display: "flex", flex: 1, gap: 0.5, overflow: "hidden" }}>
           <Sidebar />
           <InteractiveTray />
         </Box>

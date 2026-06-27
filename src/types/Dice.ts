@@ -1,4 +1,4 @@
-import { isPlainObject } from "is-plain-object";
+import { isPlainObject } from "../helpers/isPlainObject";
 
 import { Die } from "./Die";
 

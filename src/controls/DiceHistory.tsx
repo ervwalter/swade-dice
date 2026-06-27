@@ -101,8 +101,8 @@ export function DiceHistory() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "history-button",
+        slotProps={{
+          list: { "aria-labelledby": "history-button" },
         }}
         anchorOrigin={{
           vertical: "center",
@@ -113,7 +113,7 @@ export function DiceHistory() {
           horizontal: "left",
         }}
       >
-        <Stack width="250px" px={1} gap={0.5}>
+        <Stack sx={{ width: "250px", px: 1, gap: 0.5 }}>
           {recentRolls.map((recentRoll, index) => (
             <RecentRollChip
               key={index}
@@ -149,7 +149,7 @@ function RecentRollChip({
         },
       }}
       label={
-        <Stack direction="row" alignItems="center" gap={0.5} px={2}>
+        <Stack direction="row" sx={{ alignItems: "center", gap: 0.5, px: 2 }}>
           {recentRoll.rollMode === 'TRAIT' ? (
             <span style={{ fontSize: "16px" }}>🎯</span>
           ) : (
@@ -162,7 +162,7 @@ function RecentRollChip({
             }
             if (count > 6) {
               return (
-                <Stack key={id} direction="row" alignItems="center" gap={0.25}>
+                <Stack key={id} direction="row" sx={{ alignItems: "center", gap: 0.25 }}>
                   <span>{count}×</span>
                   <DicePreview
                     diceStyle={die.style}
@@ -173,7 +173,7 @@ function RecentRollChip({
               );
             }
             return (
-              <Stack key={id} direction="row" alignItems="center" gap={0.25}>
+              <Stack key={id} direction="row" sx={{ alignItems: "center", gap: 0.25 }}>
                 {Array.from({ length: count }).map((_, i) => (
                   <DicePreview
                     key={`${id}-${i}`}
@@ -229,7 +229,7 @@ function EmptyMessage() {
         <NoHistoryIcon />
       </Box>
       <Typography variant="h6">No History</Typography>
-      <Typography variant="caption" textAlign="center">
+      <Typography variant="caption" sx={{ textAlign: "center" }}>
         Roll dice to add to the roll history.
       </Typography>
     </Stack>

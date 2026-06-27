@@ -1,4 +1,5 @@
 import React from "react";
+import { ThreeElements } from "@react-three/fiber";
 import * as THREE from "three";
 import { DiceType } from "../../types/DiceType";
 
@@ -10,7 +11,7 @@ import { D4 } from "./D4";
 import { D6 } from "./D6";
 import { D8 } from "./D8";
 
-type Props = JSX.IntrinsicElements["group"] & { diceType: DiceType };
+type Props = ThreeElements["group"] & { diceType: DiceType };
 
 export const SharpDiceMesh = React.forwardRef<THREE.Group, Props>(function SharpDiceMesh(
   { diceType, ...props }, ref) {

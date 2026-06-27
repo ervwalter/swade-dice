@@ -140,7 +140,7 @@ export function ModifierControl({ config }: ModifierControlProps) {
             Quick Select:
           </Typography>
           
-          <Stack direction="row" spacing={1} mb={1}>
+          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
             {[+1, +2, +3, +4].map((value) => (
               <Button
                 key={value}
@@ -154,7 +154,7 @@ export function ModifierControl({ config }: ModifierControlProps) {
             ))}
           </Stack>
           
-          <Stack direction="row" spacing={1} mb={2}>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             {[-1, -2, -3, -4].map((value) => (
               <Button
                 key={value}
@@ -171,7 +171,7 @@ export function ModifierControl({ config }: ModifierControlProps) {
           <Typography variant="subtitle2" gutterBottom>
             Custom:
           </Typography>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <Button 
               variant="outlined" 
               size="small"
@@ -195,10 +195,12 @@ export function ModifierControl({ config }: ModifierControlProps) {
                   handleCustomSubmit();
                 }
               }}
-              inputProps={{
-                style: { textAlign: 'center' },
-                min: -99,
-                max: 99
+              slotProps={{
+                htmlInput: {
+                  style: { textAlign: 'center' },
+                  min: -99,
+                  max: 99
+                }
               }}
               sx={{ width: 80 }}
             />

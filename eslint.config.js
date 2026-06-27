@@ -31,12 +31,21 @@ export default [
     },
     settings: {
       react: {
-        version: '18.2',
+        version: '19',
       },
     },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
-      
+
+      // eslint-plugin-react-hooks v7 added React Compiler rules to its
+      // `recommended` set. They are out of scope for this dependency upgrade
+      // (the project only relied on rules-of-hooks + exhaustive-deps), so keep
+      // the original lint surface by turning the new compiler rules off.
+      'react-hooks/purity': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+
       // React specific
       'react/prop-types': 'off',
       'react/no-unknown-property': ['error', { 

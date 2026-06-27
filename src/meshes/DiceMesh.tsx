@@ -1,10 +1,11 @@
 import React from "react";
+import { ThreeElements } from "@react-three/fiber";
 import * as THREE from "three";
 import { DiceType } from "../types/DiceType";
 import { RoundedDiceMesh } from "./rounded/RoundedDiceMesh";
 import { SharpDiceMesh } from "./sharp/SharpDiceMesh";
 
-type DiceMeshProps = JSX.IntrinsicElements["group"] & {
+type DiceMeshProps = ThreeElements["group"] & {
   diceType: DiceType;
   sharp?: boolean;
 };
