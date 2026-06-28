@@ -36,7 +36,7 @@ export function GlassMaterial(
       {...props}
       {...({ 
         transmissionMap: maskMap,
-        envMapIntensity: 0.9
+        envMapIntensity: 1
       } as Record<string, unknown>)}
     />
   );

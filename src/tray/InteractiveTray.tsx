@@ -17,28 +17,8 @@ import { useDebugStore } from "../debug/store";
 import { PreviewDiceRoll } from "../dice/PreviewDiceRoll";
 import { FairnessTester } from "../tests/FairnessTester";
 
-function TrayLighting() {
-  return (
-    <>
-      <ambientLight intensity={0.53} />
-      <hemisphereLight args={["#f2e5d4", "#2f2925", 0.53]} />
-      <directionalLight position={[2.5, 5, 2.5]} intensity={0.25} />
-      <directionalLight position={[-3, 2.5, -4]} intensity={0.18} />
-      <ContactShadows
-        resolution={256}
-        scale={[1, 2]}
-        position={[0, 0, 0]}
-        blur={1}
-        opacity={0.22}
-        far={1}
-        color="#1b120d"
-      />
-    </>
-  );
-}
-
 function TrayEnvironment() {
-  return <Environment files={environment} environmentIntensity={1.05} />;
+  return <Environment files={environment} />;
 }
 
 /** Dice tray that controls the dice roll store */
@@ -64,6 +44,7 @@ export function InteractiveTray() {
       }}
     >
       <Canvas
+        frameloop="demand"
         camera={{
           fov: 29,
           position: [0, 4.3, 0],
@@ -71,10 +52,18 @@ export function InteractiveTray() {
         }}
       >
         <AudioListenerProvider>
-          <TrayLighting />
           <Suspense fallback={null}>
             <TrayEnvironment />
           </Suspense>
+          <ContactShadows
+            resolution={256}
+            scale={[1, 2]}
+            position={[0, 0, 0]}
+            blur={0.5}
+            opacity={0.5}
+            far={1}
+            color="#222222"
+          />
           <Suspense fallback={null}>
             <Tray />
             <PreviewDiceRoll />
