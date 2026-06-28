@@ -19,9 +19,13 @@ export function TrayMaterial(
       aoMap={ormMap}
       roughnessMap={ormMap}
       metalness={0}
-      roughness={0.85}
+      roughness={0.88}
       normalMap={normalMap}
       {...props}
+      {...({
+        aoMapIntensity: 0.5,
+        envMapIntensity: 0.35,
+      } as Record<string, unknown>)}
     />
   );
 }
