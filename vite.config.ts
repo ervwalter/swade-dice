@@ -8,7 +8,7 @@ declare const __dirname: string;
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  assetsInclude: ["**/*.glb", "**/*.hdr"],
+  assetsInclude: ["**/*.glb"],
   server: {
     cors: true,
   },

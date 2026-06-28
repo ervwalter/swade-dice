@@ -24,7 +24,6 @@ export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {
     map: albedoMap,
     aoMap: ormMap,
     roughnessMap: ormMap,
-    metalnessMap: ormMap,
     normalMap: normalMap,
     ...props,
   };
@@ -44,6 +43,7 @@ export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {
     <meshStandardMaterial
       {...baseProps}
       metalness={config.metalness ?? 0}
+      roughness={0.8}
     />
   );
 }

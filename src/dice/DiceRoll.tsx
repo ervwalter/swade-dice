@@ -1,5 +1,4 @@
 import { Physics } from "@react-three/rapier";
-import { ThreeElements } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
@@ -7,7 +6,7 @@ import { DiceRoll as DiceRollType } from "../types/DiceRoll";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
 import { Die } from "../types/Die";
-import { Dice as DefaultDice } from "./Dice";
+import { Dice as DefaultDice, DiceProps } from "./Dice";
 import { PhysicsDice } from "./PhysicsDice";
 import { useDebugStore } from "../debug/store";
 
@@ -37,7 +36,7 @@ export function DiceRoll({
     DiceTransform | null
   > | null>;
   /** Override to provide a custom Dice component  */
-  Dice?: React.FC<ThreeElements["group"] & { die: Die }>;
+  Dice?: React.JSXElementConstructor<DiceProps>;
 }) {
   const allowPhysicsDebug = useDebugStore((state) => state.allowPhysicsDebug);
 

@@ -5,7 +5,7 @@ type Encoding = "LINEAR" | "SRGB";
 /**
  * Setup a THREE.js texture to work with a GLTF model
  * @param textures Input textures
- * @param encodings Texture encodings
+ * @param encodings Texture color spaces
  *
  * @example <caption>Usage with `@react-three/drei` `useTexture`</caption>
  *  const [albedoMap, ormMap, normalMap] = useTexture(
@@ -26,13 +26,13 @@ export function gltfTexture(
       const encoding = encodings[i];
       texture.flipY = false;
       texture.colorSpace =
-        encoding === "SRGB" ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
+        encoding === "SRGB" ? THREE.SRGBColorSpace : THREE.NoColorSpace;
     }
   } else if (Array.isArray(textures) || Array.isArray(encodings)) {
     throw Error("Textures and encodings must match types");
   } else {
     textures.flipY = false;
     textures.colorSpace =
-      encodings === "SRGB" ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
+      encodings === "SRGB" ? THREE.SRGBColorSpace : THREE.NoColorSpace;
   }
 }

@@ -14,7 +14,7 @@ const pointer = new THREE.Vector2();
 
 /** Custom dice can be dragged but not re-rolled in Savage Worlds */
 export function InteractiveDice(
-  props: ThreeElements["group"] & {
+  props: Omit<ThreeElements["group"], "ref"> & {
     die: Die;
   }
 ) {

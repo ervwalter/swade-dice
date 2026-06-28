@@ -6,14 +6,16 @@ import { Die } from "../types/Die";
 import { DiceMesh } from "../meshes/DiceMesh";
 import { DiceMaterial } from "../materials/DiceMaterial";
 
-export const Dice: React.FC<ThreeElements["group"] & { die: Die }> = ({ die, children, ref, ...props }) => {
+export type DiceProps = Omit<ThreeElements["group"], "ref"> & { die: Die };
+
+export const Dice = React.forwardRef<THREE.Group, DiceProps>(function Dice(
+  { die, children, ...props },
+  ref
+) {
   return (
     <DiceMesh
       diceType={die.type}
-      // fiber v9 types the element `ref` slightly wider than React's
-      // forwardRef `Ref<T>` (its cleanup return is `VoidOrUndefinedOnly`),
-      // so narrow it at this single boundary.
-      ref={ref as React.Ref<THREE.Group>}
+      ref={ref}
       {...props}
       sharp={die.style === "WALNUT"}
     >
@@ -21,4 +23,4 @@ export const Dice: React.FC<ThreeElements["group"] & { die: Die }> = ({ die, chi
       {children}
     </DiceMesh>
   );
-};
+});
