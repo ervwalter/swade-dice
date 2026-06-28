@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { ThreeElements } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 
 import albedo from "./albedo.jpg";
@@ -10,7 +11,7 @@ const sheenColor = new THREE.Color("#4abff4");
 const attenuationColor = new THREE.Color(43 / 255, 1, 115 / 255);
 
 export function GlassMaterial(
-  props: JSX.IntrinsicElements["meshPhysicalMaterial"] & {
+  props: ThreeElements["meshPhysicalMaterial"] & {
     transmissionMap?: THREE.Texture;
     envMapIntensity?: number;
   }

@@ -136,7 +136,7 @@ export function TargetNumber() {
           <Typography variant="subtitle2" gutterBottom>
             Quick Select:
           </Typography>
-          <Stack direction="row" spacing={1} mb={2}>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             {[4, 6, 8].map((value) => (
               <Button
                 key={value}
@@ -151,7 +151,7 @@ export function TargetNumber() {
           <Typography variant="subtitle2" gutterBottom>
             Custom:
           </Typography>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <Button
               variant="outlined"
               size="small"
@@ -175,10 +175,12 @@ export function TargetNumber() {
                   handleCustomSubmit();
                 }
               }}
-              inputProps={{
-                style: { textAlign: 'center' },
-                min: 1,
-                max: 99
+              slotProps={{
+                htmlInput: {
+                  style: { textAlign: 'center' },
+                  min: 1,
+                  max: 99
+                }
               }}
               sx={{ width: 80 }}
             />

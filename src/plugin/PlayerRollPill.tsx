@@ -142,7 +142,7 @@ export function PlayerRollPill({
       placement="bottom-start"
       arrow
       followCursor
-      componentsProps={{
+      slotProps={{
         tooltip: {
           sx: {
             backgroundColor: "rgba(0, 0, 0, 0.9)",

@@ -25,13 +25,13 @@ export function InteractiveTray() {
   return (
     <Box
       component="div"
-      borderRadius={1}
-      height="100%"
-      flex={1}
-      overflow="hidden"
-      position="relative"
       id="interactive-tray"
       sx={{
+        borderRadius: 1,
+        height: "100%",
+        flex: 1,
+        overflow: "hidden",
+        position: "relative",
         display: "flex",
         alignItems: "flex-start",  // Align canvas to top
         "& canvas": {

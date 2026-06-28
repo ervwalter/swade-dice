@@ -215,8 +215,7 @@ function DicePickedControls() {
         <Stack
           direction="column"
           spacing={3}
-          alignItems="center"
-          sx={{ pointerEvents: "auto" }}
+          sx={{ alignItems: "center", pointerEvents: "auto" }}
         >
           <ModeSelector
             autoMode={rollMode}

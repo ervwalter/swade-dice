@@ -16,7 +16,7 @@ export function DieMenu({ die, onClose }: { die: Die; onClose: () => void }) {
     <ClickAwayListener onClickAway={onClose}>
       <Fade in timeout={100}>
         <Card sx={{ borderRadius: "20px", transform: "translateX(-50%)" }}>
-          <Stack direction="row" alignItems="center" gap={1}>
+          <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
             <Tooltip
               title={`${die.style.slice(0, 1)}${die.style
                 .slice(1)

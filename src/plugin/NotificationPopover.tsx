@@ -9,7 +9,7 @@ export function NotificationPopover() {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [latestRoll, setLatestRoll] = useState<RollBroadcast | null>(null);
   const [show, setShow] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Cleanup timer on unmount
   useEffect(() => {

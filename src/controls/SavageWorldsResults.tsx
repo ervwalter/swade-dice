@@ -98,7 +98,7 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
   }
   
   return (
-    <Stack spacing={0.5} alignItems="flex-start">
+    <Stack spacing={0.5} sx={{ alignItems: "flex-start" }}>
       {/* Display dice */}
       {diceDisplay}
       
@@ -117,7 +117,7 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
             Results:
           </Typography>
           {outcomes.map((outcome, index) => (
-            <Stack key={index} direction="row" alignItems="center" spacing={0.5} sx={{ ml: 2 }}>
+            <Stack key={index} direction="row" spacing={0.5} sx={{ alignItems: "center", ml: 2 }}>
               <Typography variant="body2" color="white">
                 {outcome.total}
                 {outcome.replacedByWild && " (wild)"}
@@ -160,7 +160,7 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
           </Typography>
           {isTraitTest && isComplete && outcomes[0].success !== undefined && (
             outcomes[0].success ? (
-              <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
                 <CheckIcon sx={{ fontSize: "16px", color: "#4caf50" }} />
                 <Typography variant="body2" color="#4caf50">
                   Success vs TN {targetNumber}
@@ -168,7 +168,7 @@ export function SavageWorldsResults({ result }: SavageWorldsResultsProps) {
                 </Typography>
               </Stack>
             ) : (
-              <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
                 <CloseIcon sx={{ fontSize: "16px", color: "#f44336" }} />
                 <Typography variant="body2" color="#f44336">
                   Failed vs TN {targetNumber}

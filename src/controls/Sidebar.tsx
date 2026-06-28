@@ -22,7 +22,7 @@ export function Sidebar() {
         overflowY: "auto",
       }}
     >
-      <Stack py={1} px={0.5} gap={1} alignItems="center">
+      <Stack sx={{ py: 1, px: 0.5, gap: 1, alignItems: "center" }}>
         <DiceSetPicker />
         <Divider flexItem sx={{ mx: 1 }} />
         <DicePicker />

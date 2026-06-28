@@ -170,7 +170,7 @@ export function FairnessTester() {
               : undefined,
           }}
         >
-          <Stack gap={1}>
+          <Stack sx={{ gap: 1 }}>
             <Alerts
               active={active}
               numberRolls={numberRolls}
@@ -205,10 +205,12 @@ export function FairnessTester() {
                 </Button>
                 <Collapse in={showResults} unmountOnExit>
                   <Stack
-                    height={345}
-                    width="100%"
-                    justifyContent="center"
-                    alignItems="center"
+                    sx={{
+                      height: 345,
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
                     <Suspense fallback={<CircularProgress />}>
                       <FairnessCharts
@@ -224,8 +226,10 @@ export function FairnessTester() {
             {starting && (
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
+                sx={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
                 <Typography variant="h6" id="rolls-label">
                   Rolls
@@ -238,7 +242,7 @@ export function FairnessTester() {
               </Stack>
             )}
             {starting && (
-              <Stack px={1}>
+              <Stack sx={{ px: 1 }}>
                 <Slider
                   aria-labelledby="rolls-label"
                   value={numberRolls}
@@ -254,7 +258,7 @@ export function FairnessTester() {
               </Stack>
             )}
             {active && (
-              <Stack gap={1}>
+              <Stack sx={{ gap: 1 }}>
                 <LinearProgress
                   sx={{ my: 1, borderRadius: 2 }}
                   id="testing-progress"
@@ -270,7 +274,7 @@ export function FairnessTester() {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                textAlign="center"
+                sx={{ textAlign: "center" }}
               >
                 test dice fairness by rolling many times
               </Typography>
@@ -279,7 +283,7 @@ export function FairnessTester() {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                textAlign="center"
+                sx={{ textAlign: "center" }}
               >
                 {rolledValues.length} of {numberRolls} rolls completed
               </Typography>
@@ -304,7 +308,7 @@ export function FairnessTester() {
               </Button>
             )}
             {finished && (
-              <Stack direction="row" gap={1}>
+              <Stack direction="row" sx={{ gap: 1 }}>
                 <Button
                   variant="outlined"
                   fullWidth

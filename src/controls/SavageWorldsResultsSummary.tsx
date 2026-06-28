@@ -183,7 +183,7 @@ export function SavageWorldsResultsSummary({
 
   // Multi-line mode for main display
   return (
-    <Stack direction="row" alignItems="flex-start" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
       {hidden && (
         <Tooltip title="Hidden Roll">
           <HiddenIcon htmlColor="white" />
@@ -195,7 +195,7 @@ export function SavageWorldsResultsSummary({
           {isTraitTest ? (isMultiDieTrait ? "Results:" : "Result:") : "Total:"}
         </Typography>
       )}
-      <Stack direction="column" alignItems="flex-start" spacing={0.25}>
+      <Stack direction="column" spacing={0.25} sx={{ alignItems: "flex-start" }}>
         {outcomes.map((outcome, index) => (
           <Typography key={index} variant={variant} sx={{ fontSize, color: textColor }}>
             <span>
