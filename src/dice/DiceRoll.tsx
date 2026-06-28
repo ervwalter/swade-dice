@@ -19,7 +19,7 @@ export function DiceRoll({
   onRollFinished,
   finishedTransforms,
   transformsRef,
-  Dice,
+  Dice = DefaultDice,
 }: {
   roll: DiceRollType;
   rollThrows: Record<string, DiceThrow>;
@@ -37,7 +37,7 @@ export function DiceRoll({
     DiceTransform | null
   > | null>;
   /** Override to provide a custom Dice component  */
-  Dice: React.FC<ThreeElements["group"] & { die: Die }>;
+  Dice?: React.FC<ThreeElements["group"] & { die: Die }>;
 }) {
   const allowPhysicsDebug = useDebugStore((state) => state.allowPhysicsDebug);
 
@@ -136,7 +136,3 @@ export function DiceRoll({
     );
   }
 }
-
-DiceRoll.defaultProps = {
-  Dice: DefaultDice,
-};

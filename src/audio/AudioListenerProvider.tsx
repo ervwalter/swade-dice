@@ -5,10 +5,10 @@ import { AudioListenerContext } from "./useAudioListener";
 
 export function AudioListenerProvider({
   children,
-  volume,
+  volume = 1,
 }: {
   children?: React.ReactNode;
-  volume: number;
+  volume?: number;
 }) {
   const { camera } = useThree();
   const [listener, setListener] = useState<THREE.AudioListener | null>(null);
@@ -27,7 +27,7 @@ export function AudioListenerProvider({
   }, [listener]);
 
   useEffect(() => {
-    if (listener) {
+    if (listener && Number.isFinite(volume)) {
       listener.setMasterVolume(volume);
     }
   }, [listener, volume]);
@@ -47,8 +47,3 @@ export function AudioListenerProvider({
     </AudioListenerContext.Provider>
   );
 }
-
-
-AudioListenerProvider.defaultProps = {
-  volume: 1,
-};
