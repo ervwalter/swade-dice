@@ -23,10 +23,11 @@ export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {
   const baseProps = {
     map: albedoMap,
     aoMap: ormMap,
-    aoMapIntensity: 0.7,
+    aoMapIntensity: config.aoMapIntensity ?? 0.7,
+    color: config.color,
     roughnessMap: ormMap,
     normalMap: normalMap,
-    envMapIntensity: 0.75,
+    envMapIntensity: config.envMapIntensity ?? 0.75,
     ...props,
   };
 
@@ -34,7 +35,7 @@ export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {
     return (
       <meshPhysicalMaterial
         {...baseProps}
-        roughness={0.78}
+        roughness={config.roughness ?? 0.78}
         clearcoat={config.clearcoat}
         clearcoatRoughness={config.clearcoatRoughness}
       />
@@ -46,7 +47,8 @@ export function BaseMaterial({ materialKey, props = {} }: BaseMaterialProps) {
     <meshStandardMaterial
       {...baseProps}
       metalness={config.metalness ?? 0}
-      roughness={0.82}
+      metalnessMap={config.metalness ? ormMap : undefined}
+      roughness={config.roughness ?? 0.82}
     />
   );
 }

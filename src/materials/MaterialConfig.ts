@@ -24,12 +24,19 @@ import galaxyNormal from './galaxy/normal.jpg';
 // Material configuration types
 export type MaterialType = 'standard' | 'physical';
 
-export interface StandardMaterialConfig {
+interface MaterialRenderConfig {
+  aoMapIntensity?: number;
+  color?: string;
+  envMapIntensity?: number;
+  roughness?: number;
+}
+
+export interface StandardMaterialConfig extends MaterialRenderConfig {
   type: 'standard';
   metalness?: number;
 }
 
-export interface PhysicalMaterialConfig {
+export interface PhysicalMaterialConfig extends MaterialRenderConfig {
   type: 'physical';
   clearcoat?: number;
   clearcoatRoughness?: number;
@@ -44,7 +51,13 @@ export const MATERIAL_CONFIGS: Record<string, MaterialConfig> = {
   SUNRISE: { type: 'standard' },
   SUNSET: { type: 'standard' },
   WALNUT: { type: 'standard' },
-  IRON: { type: 'standard', metalness: 1 },
+  IRON: {
+    type: 'standard',
+    color: '#77736c',
+    metalness: 0.72,
+    roughness: 0.82,
+    envMapIntensity: 0.7,
+  },
   GALAXY: { type: 'physical', clearcoat: 1, clearcoatRoughness: 0.3 },
 };
 
