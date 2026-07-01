@@ -38,7 +38,7 @@ export function AnimatedPlayerCamera({
 
   return (
     <>
-      <animated.group position={position}>
+      <animated.group position={position as unknown as [number, number, number]}>
         <PerspectiveCamera
           makeDefault
           fov={28}

@@ -123,7 +123,7 @@ export function InteractiveDice(
   });
 
   return (
-    <animated.group position={position}>
+    <animated.group position={position as unknown as [number, number, number]}>
       <Dice onPointerDown={handlePointerDown} ref={diceRef} {...props}></Dice>
     </animated.group>
   );
