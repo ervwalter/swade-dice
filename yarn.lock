@@ -503,9 +503,9 @@
     "@babel/runtime" "^7.29.2"
 
 "@mui/utils@^9.1.1":
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-9.1.1.tgz#94dbb62dbaadad0d890ca0501838ce578d17da04"
-  integrity sha512-qSNfnkzZMptaaWFFklpDf4NPJztgwsMDVfM/sSDt+wq4ssYSBhLYwwjuB6eS/+p2IUYbeRzHluzXbw0Zn7aI4A==
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-9.2.0.tgz#1da604f8fcfb6964e20e3a93f4ad3b719f73c843"
+  integrity sha512-OsUH5zhlSOM4xmLl53+agug1M1UyWb4zxFxWQCqwKTKUeQPvTENtg3JhrroBD2qpCLKsX5W/DYGERJ4mBUbc8g==
   dependencies:
     "@babel/runtime" "^7.29.2"
     "@mui/types" "^9.1.1"
@@ -546,38 +546,37 @@
     internmap "^2.0.3"
 
 "@mui/x-charts@^9.0.0":
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-charts/-/x-charts-9.7.0.tgz#423927af2fa5f47bfbaa78409c74652d915d933b"
-  integrity sha512-BintTVKUM/9qUFzYSGZ6aMpftv3iRoquT5vuqOJAvRTb4wOqTO6/NtlBbGIm6HQotdenuGZ2N4xiiZQYEkL/pg==
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-charts/-/x-charts-9.8.0.tgz#228bb819d33fb3b83601f5c310b981bf9c14ab29"
+  integrity sha512-jaYm7uE3jh++ftgp+jHP/gFeEU3hTUp7OOdd/coe9UAICDLXQkXw470s/pFKrb6FsRr0I4ZnDmnnYAiSJJqesg==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@mui/utils" "^9.1.1"
     "@mui/x-charts-vendor" "^9.4.0"
-    "@mui/x-internal-gestures" "^9.7.0"
-    "@mui/x-internals" "^9.7.0"
-    bezier-easing "^3.0.0"
+    "@mui/x-internal-gestures" "^9.8.0"
+    "@mui/x-internals" "^9.8.0"
+    bezier-easing "^3.0.1"
     clsx "^2.1.1"
     prop-types "^15.8.1"
     reselect "^5.2.0"
     use-sync-external-store "^1.6.0"
 
-"@mui/x-internal-gestures@^9.7.0":
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internal-gestures/-/x-internal-gestures-9.7.0.tgz#15401f1317ccdb1aca0025cf045fff030390c236"
-  integrity sha512-GUg9bQ79bdGFrGbD0E8CxsXemb2yEIgGDYZ4NDQAgnjf8CL/xFNoi0zE12BYREtINOS2mgD0gHMW8pXvPx+McA==
+"@mui/x-internal-gestures@^9.8.0":
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internal-gestures/-/x-internal-gestures-9.8.0.tgz#9e8223adb1ec104e6c24fbaeeb982a99f9e2bf3f"
+  integrity sha512-D9936uMr12kQUvQ1fIDZDkmDMwkmOASlqgQ8ByCmQXHyRtJtoFGEztWZH1DeYMFP4wQgk1deFrKxB5UCLAmPnQ==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@base-ui/utils" "^0.3.0"
 
-"@mui/x-internals@^9.7.0":
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.7.0.tgz#98543d43e769a24da6ea055e7364abd02bc4e6be"
-  integrity sha512-fdBwh96L78QFZXB1oS2v8y33gXap3A6Tc0+AJYxYzLsRwx05WnaWhtHEwNV2x7zLXLaZ4ux0CCAJIgZ6kTP4FA==
+"@mui/x-internals@^9.8.0":
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.8.0.tgz#59f64d52721a958bd57b9f4fe897a6f8c6b68615"
+  integrity sha512-eVwqPAoxxQ0WEa5+lUeCdHLdfQbUNeOQ3wPMc3S3+yGecymH6J0FfGPDPSBnFkFNVhXAaRXElKNP8Uvoz5d4Vw==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@base-ui/utils" "^0.3.0"
     "@mui/utils" "^9.1.1"
-    core-js-pure "^3.49.0"
     reselect "^5.2.0"
     use-sync-external-store "^1.6.0"
 
@@ -1221,7 +1220,7 @@ baseline-browser-mapping@^2.10.38:
   resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.10.40.tgz#f372c8eb36ff4ad0b5e7ae467014abef124554ba"
   integrity sha512-BSSLZ9/Cjjv7Gtj5B68ZzXcXUg8iOf3fme+FCuh8rC/Go+Kmh8cox7M3A8dolou16s64QjLPOSdngh7GxXvkSw==
 
-bezier-easing@^3.0.0:
+bezier-easing@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/bezier-easing/-/bezier-easing-3.0.1.tgz#e9b95a5eb10192bbc82685c9f1c6f5acdd275fd2"
   integrity sha512-vvvg10Anq7py0+KkIqlwJpUVdde9Z8kSzeUzAkQNYAJdA3mZnLG9r9ExdwtjcASCYER6UkNHdBNHHMnVimnU7A==
@@ -1327,11 +1326,6 @@ convert-source-map@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-2.0.0.tgz#4b560f649fc4e918dd0ab75cf4961e8bc882d82a"
   integrity sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==
-
-core-js-pure@^3.49.0:
-  version "3.49.0"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.49.0.tgz#ff8436b7251a3832f5fdbbe3e10f7f2e58e51fb1"
-  integrity sha512-XM4RFka59xATyJv/cS3O3Kml72hQXUeGRuuTmMYFxwzc9/7C8OYTaIR/Ji+Yt8DXzsFLNhat15cE/JP15HrCgw==
 
 cosmiconfig@^7.0.0:
   version "7.1.0"
