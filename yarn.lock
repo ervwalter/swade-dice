@@ -524,33 +524,33 @@
     internmap "^2.0.3"
 
 "@mui/x-charts@^9.0.0":
-  version "9.11.1"
-  resolved "https://registry.yarnpkg.com/@mui/x-charts/-/x-charts-9.11.1.tgz#d37ee77c7a2df4f33ec95240093cfa75f2a3b5b7"
-  integrity sha512-5Z6fzVm0NvD4auoyGZopp1wwg1mMVDXjbPEi4jahdxn14EzIAB99kKw4NUkKtmSaZJ6DiBU7zJXQAec1IZTaLA==
+  version "9.12.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-charts/-/x-charts-9.12.0.tgz#0fcd77ddb559f410426881209dbfb60e8e29a6f8"
+  integrity sha512-JIDI/keG3Ek5ObYGZWx8aqKsvEIaSSZmSA9y2n2qf8beUbm2tmFAoTFShYmQw9tFU4YOp+tWR1stmvk1znGGsA==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@mui/utils" "^9.3.0"
     "@mui/x-charts-vendor" "^9.11.1"
-    "@mui/x-internal-gestures" "^9.10.0"
-    "@mui/x-internals" "^9.11.0"
+    "@mui/x-internal-gestures" "^9.12.0"
+    "@mui/x-internals" "^9.12.0"
     bezier-easing "^3.0.1"
     clsx "^2.1.1"
     prop-types "^15.8.1"
     reselect "^5.2.0"
     use-sync-external-store "^1.6.0"
 
-"@mui/x-internal-gestures@^9.10.0":
-  version "9.10.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internal-gestures/-/x-internal-gestures-9.10.0.tgz#dad6df777d76ab5a8a0cd2083b92c0a4b3ea7d98"
-  integrity sha512-Fgmh+vJlOjLst238/J5SlEOZLdnSe0yWjrYctYVWJr3pKbtmYSbDkjYvWjG97PeDvq5Wa1+W1qagiBoJgkUIng==
+"@mui/x-internal-gestures@^9.12.0":
+  version "9.12.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internal-gestures/-/x-internal-gestures-9.12.0.tgz#0ff11aaee854916af051097429f32f5121acd046"
+  integrity sha512-PmxcNmwdZvEaRz8cOBVP4tf5Olr9vicPAAfIim2Yvxwn08bWH1wMoFHOZbYbituHznQOjtoi5GXZWzdpy3xoqg==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@base-ui/utils" "^0.3.1"
 
-"@mui/x-internals@^9.11.0":
-  version "9.11.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.11.0.tgz#42a1725c1076efd0cdd202a43a69f347650322d2"
-  integrity sha512-JjKe9k1+gVWNPwMTZLNSc92eVmoZqP5Xq3Ui6mJkstotUrbWIZC0o9+4AfTR1lYqWwnKmqm+VtLLVCa7MEBXWQ==
+"@mui/x-internals@^9.12.0":
+  version "9.12.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.12.0.tgz#1e6ff8d96aba939aacaff55365fa295391fdb827"
+  integrity sha512-rpG9EgJhH3JeOK2Q/tKaUWk5vP8C1NfL8DaXMKR1XCA7RhpZUI/xT67WKY80QtogNWu7U/BRezKyQGtiZ8soYg==
   dependencies:
     "@babel/runtime" "^7.29.7"
     "@base-ui/utils" "^0.3.1"
@@ -802,9 +802,9 @@
     "@types/d3-time" "*"
 
 "@types/d3-shape@^3.1.8":
-  version "3.1.8"
-  resolved "https://registry.yarnpkg.com/@types/d3-shape/-/d3-shape-3.1.8.tgz#d1516cc508753be06852cd06758e3bb54a22b0e3"
-  integrity sha512-lae0iWfcDeR7qt7rA88BNiqdvPS5pFVPpo5OfjElwNaT2yyekbM0C9vK+yqBqEmHr6lDkRnYNoTBYlAgJa7a4w==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@types/d3-shape/-/d3-shape-3.2.0.tgz#66ff342011dc243c6c20e6b899523d148aca412d"
+  integrity sha512-kVd74ta9eof3eJOvbNd1vGKS/XERRyQbT26Og63hIsvDO84cjD5gEOhsXf26w3FSoNlPVz84DOFcKv/oou+fMw==
   dependencies:
     "@types/d3-path" "*"
 
@@ -1711,9 +1711,9 @@ eslint-visitor-keys@^5.0.0, eslint-visitor-keys@^5.0.1:
   integrity sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA==
 
 eslint@^10.0.0:
-  version "10.8.1"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-10.8.1.tgz#fb37d514c19b6dd5b2d6b70169fd26fddfa97967"
-  integrity sha512-wqA7W2jbsC/BnV9Iv1UZpKVFkO1AdNoSmYW8NWG4HNOBbkAMvIqDZ27pI2f07dqn583NcIC44ckjAcOXDL1QbQ==
+  version "10.9.1"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-10.9.1.tgz#409da5c41a5536d5a849f8555a18ca7ef1eb963b"
+  integrity sha512-9VaAkDURekixUQJy0oJYl2DcN6oKMfxay7XzaGYAWQwsb6qfKf+x76R2k1L8kb1boc+FyCAaTA9GmiKaaiaF+A==
   dependencies:
     "@eslint-community/eslint-utils" "^4.8.0"
     "@eslint-community/regexpp" "^4.12.2"
@@ -2811,9 +2811,9 @@ require-from-string@^2.0.2:
   integrity sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==
 
 reselect@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/reselect/-/reselect-5.2.0.tgz#f380ef7664332d26ea06c1cba04bdbbdcaa955f1"
-  integrity sha512-AgZ3UOZm3YndfrJ4OYjgrT7bmCm/1iqkjvEfH/oYjzh6PD2qw4QuT3jjnXIrpdt4MTpMXclMT3lXbmRY+XRakw==
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/reselect/-/reselect-5.3.0.tgz#0a3e3ed4436bdf2ab7c5e0f392dab2c062595d61"
+  integrity sha512-XGoLeRAVzUTcJ1qkxPQhDJyIZ5d6zzZD9nT7AEZOaaU9UbWclhycElmhO+VD5bFeLuzhPBaOV2oXC8uG35ZSpg==
 
 resolve-from@^4.0.0:
   version "4.0.0"
