@@ -4,7 +4,7 @@
   "manifest_version": 1,
   "author": "Erv Walter",
   "icon": "/logo.png",
-  "homepage_url": "https://github.com/ervwalter/swade-dice",
+  "homepage_url": "https://github.com/twistymaze/swade-dice",
   "description": "Dice extension for Savage Worlds Adventure Edition (SWADE)",
   "action": {
     "title": "Savage Worlds Dice",

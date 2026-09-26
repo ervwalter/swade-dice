@@ -9,7 +9,7 @@ tags:
   - dice
   - savage-worlds
 manifest: https://swade-dice.ewal.app/manifest.json
-learn-more: https://github.com/ervwalter/swade-dice
+learn-more: https://github.com/twistymaze/swade-dice
 ---
 
 # Savage Worlds Dice
@@ -76,4 +76,4 @@ Built-in distribution analysis tools help verify the randomness and fairness of 
 
 **Support**
 
-For questions or issues with this extension, visit the [GitHub repository](https://github.com/ervwalter/swade-dice) or try the [live demo](https://swade-dice.ewal.app/).
+For questions or issues with this extension, visit the [GitHub repository](https://github.com/twistymaze/swade-dice) or try the [live demo](https://swade-dice.ewal.app/).
